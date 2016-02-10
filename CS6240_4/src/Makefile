@@ -86,5 +86,8 @@ clean:
 	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt
 	rm -rf splitfiles
 
+clean_git: clean
+	rm -rf plots Rplots.pdf
+
 clean_submission: clean
 	rm -rf all

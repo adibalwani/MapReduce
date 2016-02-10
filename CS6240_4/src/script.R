@@ -1,14 +1,19 @@
 # Author: Adib Alwani
 
-# Read output file
-df <- read.table("/home/adib/workspace/CS6240_4/src/finaloutput", 
-                 fill = TRUE, 
-                 col.names = c("carrier_code", "price", "flight_time", "distance_traveled"))
+# Function to read file and process data
+readFile <- function  (filename) {
+  help("read.table")
+  df <- read.table(filename, fill = TRUE, col.names = c("carrier_code", "price", "flight_time", "distance_traveled"))
+  jpeg(sprintf("plots/%s.jpg", df[2:2, 1:1]))
+  regression1 <- lm(df$distance_traveled ~ df$price)
+  #regression2 <- lm(df$flight_time ~ df$price)
+  #abline(regression1, col = 3, lwd = 3)
+  termplot(regression1)
+  #abline(regression1, col = 3, lwd = 3)
+  #abline(regression2, col = 3, lwd = 3)
+  dev.off()
+}
 
-# Linear Regressions for distance traveled to price
-plot(df$price, df$distance_traveled)
-regression <- lm(df$distance_traveled ~ df$price)
-summary(regression)
-abline(regression, col = 2)
-
-# linear regressions for flight time to price
+# Read output folder
+filenames <- list.files("splitfiles", pattern="*.txt", full.names=TRUE)
+lapply(filenames, readFile)
