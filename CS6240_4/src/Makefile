@@ -39,6 +39,7 @@ wait_for_completion:
 get_s3_data:
 	aws s3 cp s3://adibalwani/output result --recursive
 	cat result/part* > finaloutput
+	mkdir splitfiles
 
 ########################## Run ##################################
 
@@ -50,6 +51,7 @@ run_pseudo:
 	hadoop LinearRegression /user/adib/input/all output
 	hadoop fs -get output
 	cat output/part* > finaloutput
+	mkdir splitfiles
 
 emr: compile configure_s3 create_cluster wait_for_completion get_s3_data
 
@@ -82,7 +84,7 @@ put_data:
 
 clean:
 	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt
-	rm -rf ls *.txt | awk 'length($0) == 6'
+	rm -rf splitfiles
 
 clean_submission: clean
 	rm -rf all
