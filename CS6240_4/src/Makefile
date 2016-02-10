@@ -7,12 +7,11 @@ compile: compile_pseudo
 
 download_lib:
 	mkdir lib
-	wget -O hadoop-annotations-2.6.3.jar -P lib https://www.dropbox.com/s/hf1zyx5u0vxrmbw/hadoop-annotations-2.6.3.jar?dl=0
-	wget -O hadoop-common-2.6.3.jar -P lib https://www.dropbox.com/s/wkz233whuboo6bz/hadoop-common-2.6.3.jar?dl=0
-	wget -O hadoop-mapreduce-client-core-2.6.3.jar -P lib https://www.dropbox.com/s/xveq1qefjde2hnk/hadoop-mapreduce-client-core-2.6.3.jar?dl=0
+	wget -O lib/hadoop-annotations-2.6.3.jar https://www.dropbox.com/s/hf1zyx5u0vxrmbw/hadoop-annotations-2.6.3.jar?dl=0
+	wget -O lib/hadoop-common-2.6.3.jar https://www.dropbox.com/s/wkz233whuboo6bz/hadoop-common-2.6.3.jar?dl=0
+	wget -O lib/hadoop-mapreduce-client-core-2.6.3.jar https://www.dropbox.com/s/xveq1qefjde2hnk/hadoop-mapreduce-client-core-2.6.3.jar?dl=0
 
-compile_pseudo:
-	download_lib
+compile_pseudo: download_lib
 	javac -cp "lib/*" LinearRegression.java
 	jar cvf job.jar *.class
 

@@ -254,16 +254,16 @@ public class LinearRegression extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 		Job job = Job.getInstance(getConf());
 		job.setJar("job.jar");
-        job.setMapperClass(M.class);
-        job.setReducerClass(R.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        activeAirlines = new HashSet<String>();
-        return job.waitForCompletion(true) ? 0 : 1;
+		job.setMapperClass(M.class);
+		job.setReducerClass(R.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(Text.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		activeAirlines = new HashSet<String>();
+		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
 	public static void main(String[] args) {
