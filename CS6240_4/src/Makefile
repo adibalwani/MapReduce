@@ -3,21 +3,46 @@
 
 ######################### Compile ##############################
 
-compile: compile_pseudo
-
 download_lib:
+	rm -rf lib
 	mkdir lib
 	wget -O lib/hadoop-annotations-2.6.3.jar https://www.dropbox.com/s/hf1zyx5u0vxrmbw/hadoop-annotations-2.6.3.jar?dl=0
 	wget -O lib/hadoop-common-2.6.3.jar https://www.dropbox.com/s/wkz233whuboo6bz/hadoop-common-2.6.3.jar?dl=0
 	wget -O lib/hadoop-mapreduce-client-core-2.6.3.jar https://www.dropbox.com/s/xveq1qefjde2hnk/hadoop-mapreduce-client-core-2.6.3.jar?dl=0
 
-compile_pseudo: download_lib
+compile: download_lib
 	javac -cp "lib/*" LinearRegression.java
 	jar cvf job.jar *.class
 
+######################### AWS ###################################
+
+configure_s3:
+	aws s3 rm s3://adibalwani/output --recursive
+	aws s3 cp job.jar s3://adibalwani/
+
+create_cluster:
+	aws emr create-cluster \
+    --name "CLI Test Cluster" \
+    --release-label emr-4.3.0 \
+    --instance-groups InstanceGroupType=MASTER,InstanceCount=1,InstanceType=m3.xlarge \
+                      InstanceGroupType=CORE,InstanceCount=2,InstanceType=m3.xlarge \
+--steps Type=CUSTOM_JAR,Name="CLI Test JAR Step",ActionOnFailure=CONTINUE,Jar=s3://adibalwani/job.jar,MainClass=LinearRegression,Args=[s3://adibalwani/input,s3://adibalwani/output] \
+    --auto-terminate \
+    --log-uri s3://adibalwani/log \
+    --service-role EMR_DefaultRole \
+    --ec2-attributes InstanceProfile=EMR_EC2_DefaultRole,AvailabilityZone=us-west-2a\
+    --enable-debugging > clusterId.txt
+
+wait_for_completion:
+	python checkstatus.py
+
+get_s3_data:
+	aws s3 cp s3://adibalwani/output result --recursive
+	cat result/part* > finaloutput
+
 ########################## Run ##################################
 
-run: clean pseudo
+run: clean pseudo emr
 
 pseudo: setup_hdfs compile run_pseudo hstop
 
@@ -25,6 +50,8 @@ run_pseudo:
 	hadoop LinearRegression /user/adib/input/all output
 	hadoop fs -get output
 	cat output/part* > finaloutput
+
+emr: compile configure_s3 create_cluster wait_for_completion get_s3_data
 
 ########################## HDFS Setup ###########################
 
@@ -54,7 +81,8 @@ put_data:
 ########################### Clean ###############################
 
 clean:
-	rm -rf output *.class *.jar finaloutput lib
+	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt
+	rm -rf ls *.txt | awk 'length($0) == 6'
 
 clean_submission: clean
 	rm -rf all

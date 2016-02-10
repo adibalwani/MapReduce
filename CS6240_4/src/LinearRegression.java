@@ -1,6 +1,4 @@
 import java.io.IOException;
-import java.util.Set;
-import java.util.HashSet;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -19,8 +17,6 @@ import org.apache.hadoop.util.ToolRunner;
  * @author Adib Alwani
  */
 public class LinearRegression extends Configured implements Tool {
-	
-	private static Set<String> activeAirlines; 
 	
 	static class M extends Mapper<Object, Text, Text, Text> {
 		
@@ -215,23 +211,18 @@ public class LinearRegression extends Configured implements Tool {
                 throws IOException, InterruptedException {
 			
 			String[] row = parse(value.toString(), 110);
-			if (row != null && sanityTest(row)) {
-				String carrierCode = row[8];
-				if (checkYear(row, 2015)) {
-					activeAirlines.add(carrierCode);
-				}
-				
-				if (checkYear(row, 2010, 2014)) {
-					try {
-						String averagePrice = row[109];
-						String elapsedTime = row[51];
-						String distance = row[54];
-						
-						context.write(new Text(carrierCode), 
-								new Text(averagePrice + "\t" + elapsedTime + "\t" + distance));
-					} catch (NumberFormatException exception) {
-						// Do Nothing : Unable to parse float values
-					}
+			if (row != null && sanityTest(row) && checkYear(row, 2010, 2015)) {
+				try {
+					String carrierCode = row[8];
+					String year = row[0];
+					String averagePrice = row[109];
+					String elapsedTime = row[51];
+					String distance = row[54];
+					
+					context.write(new Text(carrierCode), 
+							new Text(year + ":" + averagePrice + "\t" + elapsedTime + "\t" + distance));
+				} catch (NumberFormatException exception) {
+					// Do Nothing : Unable to parse float values
 				}
 			}
 		}
@@ -242,9 +233,22 @@ public class LinearRegression extends Configured implements Tool {
 		
 		public void reduce(Text key, Iterable<Text> values, Context context)  
                 throws IOException, InterruptedException {
-			if (activeAirlines.contains(key.toString())) {
+			boolean active = false;
+			
+			for (Text value : values) {
+				String[] data =  value.toString().split(":");
+				if (data[0].equals("2015")) {
+					active = true;
+					break;
+				}
+			}
+			
+			if (active) {
 				for (Text value : values) {
-					context.write(key, value);
+					String[] data =  value.toString().split(":");
+					if (!data[0].equals("2015")) {
+						context.write(key, new Text(data[1]));
+					}
 				}
 			}
 		}
@@ -262,7 +266,6 @@ public class LinearRegression extends Configured implements Tool {
 		job.setOutputValueClass(Text.class);
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		activeAirlines = new HashSet<String>();
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
