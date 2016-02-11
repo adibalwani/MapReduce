@@ -208,7 +208,7 @@ public class LinearRegression extends Configured implements Tool {
 		}
 		
 		public void map(Object key, Text value, Context context) 
-                throws IOException, InterruptedException {
+			throws IOException, InterruptedException {
 			
 			String[] row = parse(value.toString(), 110);
 			if (row != null && sanityTest(row) && checkYear(row, 2010, 2015)) {
@@ -232,7 +232,8 @@ public class LinearRegression extends Configured implements Tool {
 	static class R extends Reducer<Text, Text, Text, Text> {
 		
 		public void reduce(Text key, Iterable<Text> values, Context context)  
-                throws IOException, InterruptedException {
+			throws IOException, InterruptedException {
+
 			boolean active = false;
 			
 			for (Text value : values) {

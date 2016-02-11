@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 # Author: Adib Alwani
 
 ######################### Compile ##############################
@@ -40,20 +40,29 @@ get_s3_data:
 	aws s3 cp s3://adibalwani/output result --recursive
 	cat result/part* > finaloutput
 	mkdir splitfiles
+	python splitfiles.py
 
 ########################## Run ##################################
 
-run: clean pseudo emr
+run: clean pseudo
 
-pseudo: setup_hdfs compile run_pseudo hstop
+pseudo: setup_hdfs compile run_pseudo run_r hstop
 
 run_pseudo:
 	hadoop LinearRegression /user/adib/input/all output
 	hadoop fs -get output
 	cat output/part* > finaloutput
 	mkdir splitfiles
+	python splitfiles.py
 
-emr: compile configure_s3 create_cluster wait_for_completion get_s3_data
+emr: compile configure_s3 create_cluster wait_for_completion get_s3_data run_r
+
+run_r:
+	rm -rf plots summary
+	mkdir plots
+	mkdir summary
+	R < script.R --no-save
+	sh analyze.sh
 
 ########################## HDFS Setup ###########################
 
@@ -83,11 +92,7 @@ put_data:
 ########################### Clean ###############################
 
 clean:
-	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt
-	rm -rf splitfiles
-
-clean_git: clean
-	rm -rf plots Rplots.pdf
+	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt splitfiles plots Rplots.pdf summary analysis
 
 clean_submission: clean
 	rm -rf all

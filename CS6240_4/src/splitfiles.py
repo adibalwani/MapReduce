@@ -1,3 +1,5 @@
+# Author: Rachit Puri
+
 from itertools import groupby
 
 for key, rows in groupby(open("finaloutput"),
