@@ -44,7 +44,7 @@ get_s3_data:
 
 ########################## Run ##################################
 
-run: clean pseudo
+run: clean emr
 
 pseudo: setup_hdfs compile run_pseudo run_r hstop
 
