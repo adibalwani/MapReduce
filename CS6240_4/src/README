@@ -1,13 +1,8 @@
-pdflatex --enable-write18 report.tex
-sudo apt-get install texlive-latex-base
+Latex Prerequisitives:
+1. sudo apt-get install texlive-latex-base
+2. pdflatex --enable-write18 report.tex
 
-Prerequisites for document generation using R markdown:
-1. ggplot2 -> install.packages("ggplot2")
-2. rmarkdown -> install.packages("rmarkdown")
-3. Incase you are getting pandoc version errors:
-	https://github.com/rstudio/rmarkdown/blob/master/PANDOC.md
-
-Prerequisites to run on local cluster:
+Prerequisites to run on local cluster (Optional):
 
 1. export HADOOP_CLASSPATH=.:`hadoop classpath`
 2. sudo apt-get install r-cran-ggplot2 
@@ -20,19 +15,21 @@ If no path is specified(as per instructions), then the script will handle deleti
 
 Prerequisites to run on EMR:
 
-1. We are assuming that jobs are being run at our EMR (setup for S3 has already been done, no changes required)
-2. sudo apt-get install r-cran-ggplot2 
-3. Type : aws configure 
-	AccessId : AKIAIVBPHI5IOAFANURA 
-	SecretKey : UuFH+IlHYtg8U+wwC/4c/6NLIjKsUgFDwvu23NOh
+1. We are assuming that jobs are being run at your EMR 
+2. In your aws configure make sure your output format is "json". We are using json parser in our script so if aws output is text then there will be a problem.
+Type aws configure on command prompt
+	AccessId : Enter 
+	SecretKey : Enter
 	region : us-west-2
 	output format : json
-
+3. Keep all folder in your current working directory frome where you will call make emr.   
+4. We are pushing input data to your S3 bucket from our script. In case internet connection losses or problem happens please upload 
+   input data to S3://adibrachit/input. Output gets generated at s3://adibrachit/output
 
 =================================== Run ======================================
 
-make pseuso : It will create a HDFS file system, start hadoop, run your job, get the output and produce the graph on local system
-
 make emr : It will run your code on EMR cluster
+
+optional -> make pseuso : It will create a HDFS file system, start hadoop, run your job, get the output and produce the graph on local system
 
 ==============================================================================
