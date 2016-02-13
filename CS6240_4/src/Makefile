@@ -17,11 +17,13 @@ compile: download_lib
 ######################### AWS ###################################
 
 configure_s3:
-	aws s3 rb s3://adibrachit --force
-	aws s3 mb s3://adibrachit
-	aws s3 rm s3://adibrachit/output --recursive
-	aws s3 cp all s3://adibrachit/input/ --recursive
-	aws s3 cp job.jar s3://adibrachit/
+	aws s3 mb s3://adibpuri
+	aws s3 rm s3://adibpuri/output --recursive
+	aws s3 cp all s3://adibpuri/input/ --recursive
+	aws s3 cp job.jar s3://adibpuri/
+
+delete_bucket:
+	aws s3 rb s3://adibpuri --force
 
 create_cluster:
 	aws emr create-cluster \
@@ -29,9 +31,9 @@ create_cluster:
     --release-label emr-4.3.0 \
     --instance-groups InstanceGroupType=MASTER,InstanceCount=1,InstanceType=m3.xlarge \
                       InstanceGroupType=CORE,InstanceCount=2,InstanceType=m3.xlarge \
---steps Type=CUSTOM_JAR,Name="CLI Test JAR Step",ActionOnFailure=CONTINUE,Jar=s3://adibrachit/job.jar,MainClass=LinearRegression,Args=[s3://adibrachit/input,s3://adibrachit/output] \
+--steps Type=CUSTOM_JAR,Name="CLI Test JAR Step",ActionOnFailure=CONTINUE,Jar=s3://adibpuri/job.jar,MainClass=LinearRegression,Args=[s3://adibpuri/input,s3://adibpuri/output] \
     --auto-terminate \
-    --log-uri s3://adibrachit/log \
+    --log-uri s3://adibpuri/log \
     --service-role EMR_DefaultRole \
     --ec2-attributes InstanceProfile=EMR_EC2_DefaultRole,AvailabilityZone=us-west-2a\
     --enable-debugging > clusterId.txt
@@ -40,7 +42,7 @@ wait_for_completion:
 	python checkstatus.py
 
 get_s3_data:
-	aws s3 cp s3://adibrachit/output result --recursive
+	aws s3 cp s3://adibpuri/output result --recursive
 	cat result/part* > finaloutput
 	mkdir splitfiles
 	python splitfiles.py
@@ -49,16 +51,16 @@ get_s3_data:
 
 run: clean emr
 
-pseudo: setup_hdfs compile run_pseudo run_r hstop
+pseudo: setup_hdfs Compileile run_pseudo run_r hstop
 
 run_pseudo:
 	hadoop LinearRegression /user/adib/input/all output
-	hadoop fs -get output
+	hadoop fs -get output																																																																																																																																																																																																																							
 	cat output/part* > finaloutput
 	mkdir splitfiles
 	python splitfiles.py
 
-emr: compile configure_s3 create_cluster wait_for_completion get_s3_data run_r generate_report
+emr: compile configure_s3 create_cluster wait_for_completion get_s3_data delete_bucket run_r
 
 run_r:
 	rm -rf plots summary
@@ -98,7 +100,7 @@ put_data:
 ########################### Clean ###############################
 
 clean:
-	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt splitfiles plots Rplots.pdf summary analysis report.aux report.log report.py report.py.err report.py.out
+	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt splitfiles plots Rplots.pdf summary analysis report.aux report.log report.py report.py.err report.py.out latex.py
 
 clean_submission: clean
 	rm -rf all
