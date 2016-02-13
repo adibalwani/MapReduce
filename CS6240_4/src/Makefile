@@ -17,8 +17,11 @@ compile: download_lib
 ######################### AWS ###################################
 
 configure_s3:
-	aws s3 rm s3://adibalwani/output --recursive
-	aws s3 cp job.jar s3://adibalwani/
+	aws s3 rb s3://adibrachit --force
+	aws s3 mb s3://adibrachit
+	aws s3 rm s3://adibrachit/output --recursive
+	aws s3 cp all s3://adibrachit/input/ --recursive
+	aws s3 cp job.jar s3://adibrachit/
 
 create_cluster:
 	aws emr create-cluster \
@@ -26,9 +29,9 @@ create_cluster:
     --release-label emr-4.3.0 \
     --instance-groups InstanceGroupType=MASTER,InstanceCount=1,InstanceType=m3.xlarge \
                       InstanceGroupType=CORE,InstanceCount=2,InstanceType=m3.xlarge \
---steps Type=CUSTOM_JAR,Name="CLI Test JAR Step",ActionOnFailure=CONTINUE,Jar=s3://adibalwani/job.jar,MainClass=LinearRegression,Args=[s3://adibalwani/input,s3://adibalwani/output] \
+--steps Type=CUSTOM_JAR,Name="CLI Test JAR Step",ActionOnFailure=CONTINUE,Jar=s3://adibrachit/job.jar,MainClass=LinearRegression,Args=[s3://adibrachit/input,s3://adibrachit/output] \
     --auto-terminate \
-    --log-uri s3://adibalwani/log \
+    --log-uri s3://adibrachit/log \
     --service-role EMR_DefaultRole \
     --ec2-attributes InstanceProfile=EMR_EC2_DefaultRole,AvailabilityZone=us-west-2a\
     --enable-debugging > clusterId.txt
@@ -37,7 +40,7 @@ wait_for_completion:
 	python checkstatus.py
 
 get_s3_data:
-	aws s3 cp s3://adibalwani/output result --recursive
+	aws s3 cp s3://adibrachit/output result --recursive
 	cat result/part* > finaloutput
 	mkdir splitfiles
 	python splitfiles.py
@@ -55,7 +58,7 @@ run_pseudo:
 	mkdir splitfiles
 	python splitfiles.py
 
-emr: compile configure_s3 create_cluster wait_for_completion get_s3_data run_r
+emr: compile configure_s3 create_cluster wait_for_completion get_s3_data run_r generate_report
 
 run_r:
 	rm -rf plots summary
@@ -63,6 +66,9 @@ run_r:
 	mkdir summary
 	R < script.R --no-save
 	sh analyze.sh
+
+generate_report:
+	pdflatex --enable-write18 report.tex
 
 ########################## HDFS Setup ###########################
 
@@ -92,7 +98,7 @@ put_data:
 ########################### Clean ###############################
 
 clean:
-	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt splitfiles plots Rplots.pdf summary analysis
+	rm -rf output *.class *.jar finaloutput lib result health.json clusterId.txt splitfiles plots Rplots.pdf summary analysis report.aux report.log report.py report.py.err report.py.out
 
 clean_submission: clean
 	rm -rf all

@@ -1,25 +1,22 @@
-\documentclass[12pt]{article}
-
+%& -shell-escape
+\documentclass{article}
 \usepackage{python}
 \usepackage{graphicx}
 
-%\graphicspath{{plots/}}
-
 \begin{document}
-
-\begin{python}
+\begin{python}%
 import os
 directory = "plots"
 extension = ".jpg"
 files = [file for file in os.listdir(directory) if file.lower().endswith(extension)]
 
 for file in files:
-	print r"\begin{figure}"
-	print r"\centering"
-	print r"\includegraphics[width=10cm,height=10cm]{%s}" % file
-	print r"\caption{File %s}" % file
-	print r"\label{Serie}"
-	print r"\end{figure}"
-\end{python}
-
+        print r"\begin{figure}[h!]"
+        print r"\centering"
+        print r"\includegraphics[width=10cm,height=10cm]{plots/%s}" % file
+        print r"\caption{File %s}" % file
+        print r"\label{Serie}"
+        print r"\end{figure}"
+\end{python}%
 \end{document}
+

@@ -13,6 +13,7 @@ import org.apache.hadoop.util.ToolRunner;
 
 
 /**
+ * MapReduce program to output the flight data for given year
  * 
  * @author Adib Alwani
  */
@@ -235,6 +236,7 @@ public class LinearRegression extends Configured implements Tool {
 			throws IOException, InterruptedException {
 
 			boolean active = false;
+			Iterable<Text> start = values;
 			
 			for (Text value : values) {
 				String[] data =  value.toString().split(":");
@@ -245,7 +247,7 @@ public class LinearRegression extends Configured implements Tool {
 			}
 			
 			if (active) {
-				for (Text value : values) {
+				for (Text value : start) {
 					String[] data =  value.toString().split(":");
 					if (!data[0].equals("2015")) {
 						context.write(key, new Text(data[1]));
