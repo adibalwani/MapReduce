@@ -3,9 +3,11 @@
 
 MISSED_SUM=0
 CONNECTING_SUM=0
+FILENAME="finaloutput"
+OUTPUTFILE="solution_final"
 KEY=""
 
-echo -n "" > solution_final
+echo -n "" > $OUTPUTFILE
 
 while read line
 do
@@ -17,11 +19,11 @@ do
 		MISSED_SUM=$((MISSED_SUM+MISSED_SUM_LINE))
 		CONNECTING_SUM=$((CONNECTING_SUM+CONNECTING_SUM_LINE))
 	else
-		echo $KEY " " $MISSED_SUM " " $CONNECTING_SUM >> solution_final
+		echo $KEY " " $MISSED_SUM " " $CONNECTING_SUM >> $OUTPUTFILE
 		KEY=$KEY_LINE
 		MISSED_SUM=0
 		CONNECTING_SUM=0
 	fi
-done < final_backup
+done < $FILENAME
 
-sort solution_final | sed -i '1d' solution_final
+sort $OUTPUTFILE | sed -i '1d' $OUTPUTFILE

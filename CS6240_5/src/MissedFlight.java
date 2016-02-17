@@ -248,19 +248,38 @@ public class MissedFlight extends Configured implements Tool {
 			int time = ((24 - arr.getHours()) + dep.getHours())*60 + (dep.getMinutes() - arr.getMinutes()); 
 			return time <= 6*60 && time >= 30; 
 		}
+
+		int checkDay(Date arr, Date dep) {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        	String arr_date = dateFormat.format(arr);
+        	String dep_date = dateFormat.format(dep);
+        	Date arrival = null;
+        	Date departure = null;
+			try {
+				arrival = dateFormat.parse(arr_date);
+				departure = dateFormat.parse(dep_date);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} 
+        	return arrival.compareTo(departure);
+		}
 		
 		@SuppressWarnings("deprecation")
 		boolean sameDay(Date arr, Date dep) {
-			//return ((arr.compareTo(dep) == 0) || ((arr.compareTo(dep) == -1) && timeDiff(arr,dep)));
-			return (arr.getYear() == dep.getYear() && arr.getMonth() == dep.getMonth() 
-				&& (arr.getDate() == dep.getDate() || 
-				   ((dep.getDate() - arr.getDate() == 1) && timeDiff(arr, dep))));
-		
+			int val = checkDay(arr, dep);
+			if (val == 0) {
+				return true;
+			}
+			if (val == -1) {
+				return timeDiff(arr,dep);
+			}
+			return false;
 		}
 		
 		boolean checkMissed(Date arr, Date dep) {
 			int time = 0;
-			if (dep.getDate() - arr.getDate() == 1) {
+			int val = checkDay(arr, dep);
+			if (val == -1) {
 				time = ((24 - arr.getHours()) + dep.getHours())*60 + (dep.getMinutes() - arr.getMinutes());
 			} else {
 				time = (dep.getHours() - arr.getHours())*60 + (dep.getMinutes() - arr.getMinutes());
@@ -274,6 +293,8 @@ public class MissedFlight extends Configured implements Tool {
 			Iterable<Text> start = values;
 			int total = 0;
 			int missed = 0;
+			boolean connectingFlight = false;
+			boolean missedFlight = false;
 
 			String[] data = null;
 			String[] dataVal = null;
@@ -290,9 +311,7 @@ public class MissedFlight extends Configured implements Tool {
 	    		Date arr_date = null;
 	    		Date actual_arr_date = null;
 				try {
-					// dep_date + schedule_arr
 					arr_date = df.parse(arrDataValue[0] + " " +arrDataValue[1]);
-					// dep_date + actual_arr
 					actual_arr_date = df.parse(arrDataValue[0] + " " +arrDataValue[2]);
 				} catch (ParseException e) {
 					e.printStackTrace();
@@ -312,10 +331,10 @@ public class MissedFlight extends Configured implements Tool {
 						}
 						if (flight_type.equals("G")) {
 							@SuppressWarnings("deprecation")
-							boolean connectingFlight = sameDay(arr_date, dep_date);
+							connectingFlight = sameDay(arr_date, dep_date);
 							if (connectingFlight) {
 								total++;
-								boolean missedFlight = checkMissed(actual_arr_date, actual_dep_date);
+								missedFlight = checkMissed(actual_arr_date, actual_dep_date);
 								if (missedFlight) {
 									missed++;
 								}
@@ -335,10 +354,10 @@ public class MissedFlight extends Configured implements Tool {
 						}
 						if (flight_type.equals("F")) {
 							@SuppressWarnings("deprecation")
-							boolean connectingFlight = sameDay(arr_date, dep_date);
+							connectingFlight = sameDay(arr_date, dep_date);
 							if (connectingFlight) {
 								total++;
-								boolean missedFlight = checkMissed(actual_arr_date, actual_dep_date);
+								missedFlight = checkMissed(actual_arr_date, actual_dep_date);
 								if (missedFlight) {
 									missed++;
 								}
