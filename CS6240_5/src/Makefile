@@ -11,7 +11,7 @@ download_lib:
 	wget -O lib/hadoop-mapreduce-client-core-2.6.3.jar https://www.dropbox.com/s/xveq1qefjde2hnk/hadoop-mapreduce-client-core-2.6.3.jar?dl=0
 
 compile: download_lib
-	javac -cp "lib/*" LinearRegression.java
+	javac -cp "lib/*" MissedFlight.java
 	jar cvf job.jar *.class
 
 ######################### AWS ###################################
@@ -31,7 +31,7 @@ create_cluster:
     --release-label emr-4.3.0 \
     --instance-groups InstanceGroupType=MASTER,InstanceCount=1,InstanceType=m3.xlarge \
                       InstanceGroupType=CORE,InstanceCount=2,InstanceType=m3.xlarge \
---steps Type=CUSTOM_JAR,Name="CLI Test JAR Step",ActionOnFailure=CONTINUE,Jar=s3://adibpuri/job.jar,MainClass=LinearRegression,Args=[s3://adibpuri/input,s3://adibpuri/output] \
+--steps Type=CUSTOM_JAR,Name="CLI Test JAR Step",ActionOnFailure=CONTINUE,Jar=s3://adibpuri/job.jar,MainClass=MissedFlight,Args=[s3://adibpuri/input,s3://adibpuri/output] \
     --auto-terminate \
     --log-uri s3://adibpuri/log \
     --service-role EMR_DefaultRole \
@@ -49,16 +49,17 @@ get_s3_data:
 
 ########################## Run ##################################
 
-run: clean emr
+run: clean pseudo
 
-pseudo: setup_hdfs Compileile run_pseudo run_r hstop
+pseudo: setup_hdfs compile run_pseudo run_r hstop
 
 run_pseudo:
-	hadoop LinearRegression /user/adib/input/all output
+	hadoop MissedFlight /user/adib/input/all output
 	hadoop fs -get output																																																																																																																																																																																																																							
 	cat output/part* > finaloutput
-	mkdir splitfiles
-	python splitfiles.py
+	sh filter.sh
+	#mkdir splitfiles
+	#python splitfiles.py
 
 emr: compile configure_s3 create_cluster wait_for_completion get_s3_data delete_bucket run_r
 
