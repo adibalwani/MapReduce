@@ -1,29 +1,11 @@
 #!/bin/bash
 # Author: Adib Alwani
 
-MISSED_SUM=0
-CONNECTING_SUM=0
-FILENAME="finaloutput"
-OUTPUTFILE="solution_final"
-KEY=""
-
-echo -n "" > $OUTPUTFILE
-
-while read line
-do
-	KEY_LINE="$(echo $line | awk '{print $1 " " $2}')"
-	MISSED_SUM_LINE="$(echo $line | awk '{print $4}')"
-	CONNECTING_SUM_LINE="$(echo $line | awk '{print $5}')"
-	if [ "$KEY" = "$KEY_LINE" ]
-	then
-		MISSED_SUM=$((MISSED_SUM+MISSED_SUM_LINE))
-		CONNECTING_SUM=$((CONNECTING_SUM+CONNECTING_SUM_LINE))
-	else
-		echo $KEY " " $MISSED_SUM " " $CONNECTING_SUM >> $OUTPUTFILE
-		KEY=$KEY_LINE
-		MISSED_SUM=0
-		CONNECTING_SUM=0
-	fi
-done < $FILENAME
-
-sort $OUTPUTFILE | sed -i '1d' $OUTPUTFILE
+echo "Carrier_Code\tYear\tConnection\tMissedConnection" > solution_final
+awk '{a[$1$2]+=$5;}END{for(i in a)print i", "a[i];}' finaloutput > temp1
+awk '{a[$1$2]+=$4;}END{for(i in a)print i", "a[i];}' finaloutput > temp2
+join temp1 temp2 > solution_final
+awk '{print $1 "\t" $2 "\t" $3 "\t" $3*100/$2}' solution_final > temp3
+sed -i '1s/^/Carrier_Code\tYear\tConnection\tMissedConnection\tPercentage\n/' temp3
+mv temp3 solution_final
+rm -rf temp1 temp2 temp3

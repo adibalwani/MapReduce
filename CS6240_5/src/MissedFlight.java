@@ -2,6 +2,11 @@ import java.io.IOException;
 import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -15,13 +20,13 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 /**
- * MapReduce program to output the flight data for given year
+ * MapReduce program to calculate Missed Connections
  * 
  * @author Adib Alwani
  */
 public class MissedFlight extends Configured implements Tool {
 	
-	static class M extends Mapper<Object, Text, Text, Text> {
+	static class MissedFlightMapper extends Mapper<Object, Text, Text, Text> {
 		
 		/**
 		 * Parse a CSV record given as string
@@ -210,163 +215,216 @@ public class MissedFlight extends Configured implements Tool {
 			return true;
 		}
 		
+		/**
+		 * Check whether the given flight is cancelled or not
+		 * 
+		 * @param row Record of flight OTP data
+		 * @return true iff it cancelled. False, otherwise
+		 */
+		private boolean isCancelled(String[] row) {
+			int cancelled = (int) Float.parseFloat(row[47]);
+			return cancelled == 1;
+		}
+		
+		/**
+		 * Convert the given date in YYYY-MM-DD format into 
+		 * the minutes since epoch
+		 * 
+		 * @param aDate Date
+		 * @return Minutes since epoch
+		 */
+		private long getEpochMinutes(String aDate) {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			Date date = null;
+			try {
+				date = simpleDateFormat.parse(aDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return date.getTime() / (long) (60 * 1000);
+		}
+		
+		/**
+		 * Return the timezone in minutes
+		 * 
+		 * @param row Record of flight OTP data
+		 * @return Timezone
+		 */
+		private int getTimeZone(String[] row) {
+			// hh:mm format
+			int CRSArrTime = timeToMinute(row[40]);
+			int CRSDepTime = timeToMinute(row[29]);
+			
+			// minutes format
+			int CRSElapsedTime = (int) Float.parseFloat(row[50]);
+			return CRSArrTime - CRSDepTime - CRSElapsedTime;
+		}
+		
+		/**
+		 * Return the arrival date and time in epoch minutes
+		 * 
+		 * @param depFlight Departure flight date in epoch minutes 
+		 * @param elapsedTime Duration of flight in minutes
+		 * @param depTime Departure flight time in epoch minutes
+		 * @param timezone Timezone in minutes
+		 * @return Arrival Time
+		 */
+		private long getArrivalEpochMinutes(long depFlight, int elapsedTime, int depTime, int timeZone) {
+			return depFlight + elapsedTime + depTime + timeZone;
+		}
+		
+		/**
+		 * Return the departure date and time in epoch minutes
+		 * 
+		 * @param depFlight Departure flight date in epoch minutes
+		 * @param depTime Departure flight time in epoch minutes
+		 * @return Departure Time
+		 */
+		private long getDepartureEpochMinutes(long depFlight, int depTime) {
+			return depFlight + depTime;
+		}
+		
+		/**
+		 * Return the departure delay in minutes
+		 * 
+		 * @param CRSDepTime CRS departure flight time in epoch minutes
+		 * @param depTime Departure flight time in epoch minutes
+		 * @return Departure Time
+		 */
+		private long getDepartureDelay(int CRSDepTime, int depTime) {
+			return depTime - CRSDepTime;
+		}
+		
 		public void map(Object key, Text value, Context context) 
 			throws IOException, InterruptedException {
 			
 			String[] row = parse(value.toString(), 110);
-			if (row != null && sanityTest(row)) {
-				try {
-					String carrierCode = row[8];
-					String year = row[0];
-					String dest_airID = row[20];
-					String org_airID = row[11];
-
-					String dep_date = row[5];
-					String schedule_dep = row[29];
-					String act_dep = row[30];
-					String schedule_arr = row[40];
-					String act_arr = row[41];
-					
-					// (F9 2013 1242, F:02-09-2013	2100 2105)
-					if (act_dep.length() > 0 && act_arr.length() > 0) {
-						context.write(new Text(carrierCode + " " +year + " " +dest_airID), 
-								new Text("F" + ":" +dep_date + "\t" + schedule_arr + "\t" + act_arr));
-						context.write(new Text(carrierCode + " " +year + " " +org_airID), 
-								new Text("G" + ":" +dep_date + "\t" + schedule_dep + "\t" + act_dep));
-					}
-				} catch (NumberFormatException exception) {
-					// Do Nothing : Unable to parse float values
-				}
+			if (row != null && sanityTest(row) && !isCancelled(row)) {
+				String carrierCode = row[8];
+				String year = row[0];
+				int timeZone = getTimeZone(row);
+				int depDelay = (int) Float.parseFloat(row[31]);
+				
+				// CRS Time
+				int CRSArrTime = timeToMinute(row[40]);
+				int CRSDepTime = timeToMinute(row[29]);
+				
+				// Actual Time
+				int arrTime = timeToMinute(row[41]);
+				int depTime = timeToMinute(row[30]);
+				
+				// Get Elapsed Time
+				int CRSElapsedTime = (int) Float.parseFloat(row[50]);
+				int actualElapsedTime = (int) Float.parseFloat(row[51]);
+				
+				// Get Flight date
+				long CRSDepFlightDate = getEpochMinutes(row[5]);
+				long depFlightDate = CRSDepFlightDate + depDelay;
+				
+				// Airport Id
+				String destAirportId = row[20];
+				String originAirportId = row[11];
+				
+				// Get Time in epoch
+				long CRSDepEpochTime = getDepartureEpochMinutes(CRSDepFlightDate, CRSDepTime);
+				long depEpochTime = getDepartureEpochMinutes(depFlightDate, depTime);
+				long CRSArrEpochTime = getArrivalEpochMinutes(CRSDepFlightDate, CRSElapsedTime, CRSDepTime, timeZone);
+				long arrEpochTime = getArrivalEpochMinutes(depFlightDate, actualElapsedTime, depTime, timeZone);
+				
+				// Emit Arrival
+				context.write(new Text(carrierCode + " " + year + " " + destAirportId), 
+						new Text("A:" + CRSArrEpochTime + "\t" + arrEpochTime));
+				
+				// Emit Departure
+				context.write(new Text(carrierCode + " " + year + " " + originAirportId), 
+						new Text("D:" + CRSDepEpochTime + "\t" + depEpochTime));
 			}
 		}
 		
 	}
 	
-	static class R extends Reducer<Text, Text, Text, Text> {
+	static class MissedFlightReducer extends Reducer<Text, Text, Text, Text> {
 		
-		boolean timeDiff(Date arr, Date dep) {
-			int time = ((24 - arr.getHours()) + dep.getHours())*60 + (dep.getMinutes() - arr.getMinutes()); 
-			return time <= 6*60 && time >= 30; 
-		}
-
-		int checkDay(Date arr, Date dep) {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        	String arr_date = dateFormat.format(arr);
-        	String dep_date = dateFormat.format(dep);
-        	Date arrival = null;
-        	Date departure = null;
-			try {
-				arrival = dateFormat.parse(arr_date);
-				departure = dateFormat.parse(dep_date);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			} 
-        	return arrival.compareTo(departure);
-		}
-		
-		@SuppressWarnings("deprecation")
-		boolean sameDay(Date arr, Date dep) {
-			int val = checkDay(arr, dep);
-			if (val == 0) {
+		/**
+		 * Check whether the flights are a missed connection or not
+		 * 
+		 * @param CRSArrTime The scheduled arrival time
+		 * @param CRSDepTime The scheduled departure time
+		 * @return true iff they are missed connections. False, otherwise
+		 */
+		private boolean isMissedConnection(long arrEpochTime, long depEpochTime) {
+			if (depEpochTime < arrEpochTime + 30) {
 				return true;
-			}
-			if (val == -1) {
-				return timeDiff(arr,dep);
 			}
 			return false;
 		}
 		
-		boolean checkMissed(Date arr, Date dep) {
-			int time = 0;
-			int val = checkDay(arr, dep);
-			if (val == -1) {
-				time = ((24 - arr.getHours()) + dep.getHours())*60 + (dep.getMinutes() - arr.getMinutes());
-			} else {
-				time = (dep.getHours() - arr.getHours())*60 + (dep.getMinutes() - arr.getMinutes());
+		/**
+		 * Check whether the flights are a connection or not
+		 * 
+		 * @param CRSArrTime The scheduled arrival time
+		 * @param CRSDepTime The scheduled departure time
+		 * @return true iff they are connections. False, otherwise
+		 */
+		private boolean isConnection(long CRSArrEpochTime, long CRSDepEpochTime) {
+			if (CRSDepEpochTime >= CRSArrEpochTime + 30 && CRSDepEpochTime <= CRSArrEpochTime + 360) {
+				return true;
 			}
-			return time < 30;
+			return false;
 		}
 		
 		public void reduce(Text key, Iterable<Text> values, Context context)  
 			throws IOException, InterruptedException {
-
-			Iterable<Text> start = values;
-			int total = 0;
-			int missed = 0;
-			boolean connectingFlight = false;
-			boolean missedFlight = false;
-
-			String[] data = null;
-			String[] dataVal = null;
-			String flight_type = null;
-			Date dep_date = null;
-			Date actual_dep_date = null;
 			
+			/**
+			 * Pair for Actual and Scheduled Time
+			 */
+			class Pair {
+				long CRSTime;
+				long time;
+			}
+			
+			Iterable<Text> start = values;
+			int connection = 0;
+			int missedConnection = 0;
+			List<Pair> arrList = new ArrayList<Pair>();
+			List<Pair> depList = new ArrayList<Pair>();
+			
+			// Fill List
 			for (Text value : values) {
-				String[] arrData = value.toString().split(":");
-				String[] arrDataValue = arrData[1].split("\t");
-				String arr_flight_type = arrData[0];
-				String pattern = "dd-MM-yyyy HHmm";
-	    		SimpleDateFormat df = new SimpleDateFormat(pattern);
-	    		Date arr_date = null;
-	    		Date actual_arr_date = null;
-				try {
-					arr_date = df.parse(arrDataValue[0] + " " +arrDataValue[1]);
-					actual_arr_date = df.parse(arrDataValue[0] + " " +arrDataValue[2]);
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
-
-				// If flight_type is F then check only with G and vice-e-versa
-				if (arr_flight_type.equals("F")) {
-					for (Text v : start) {
-						data = v.toString().split(":");
-						dataVal = data[1].split("\t");
-						flight_type = data[0];
-						try {
-							dep_date = df.parse(dataVal[0] + " " +dataVal[1]);
-							actual_dep_date = df.parse(dataVal[0] + " " +dataVal[2]);
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-						if (flight_type.equals("G")) {
-							@SuppressWarnings("deprecation")
-							connectingFlight = sameDay(arr_date, dep_date);
-							if (connectingFlight) {
-								total++;
-								missedFlight = checkMissed(actual_arr_date, actual_dep_date);
-								if (missedFlight) {
-									missed++;
-								}
-							}
-						}
-					}
+				String[] data = value.toString().split(":");
+				String[] flightInfo = data[1].split("\t");
+				String CRSTime = flightInfo[0];
+				String time = flightInfo[1];
+				Pair pair = new Pair();
+				pair.CRSTime = Long.parseLong(CRSTime);
+				pair.time = Long.parseLong(time);
+				
+				if (data[0].equals("A")) {
+					arrList.add(pair);
 				} else {
-					for (Text v : start) {
-						data = v.toString().split(":");
-						dataVal = data[1].split("\t");
-						flight_type = data[0];
-						try {
-							dep_date = df.parse(dataVal[0] + " " +dataVal[1]);
-							actual_dep_date = df.parse(dataVal[0] + " " +dataVal[2]);
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-						if (flight_type.equals("F")) {
-							@SuppressWarnings("deprecation")
-							connectingFlight = sameDay(arr_date, dep_date);
-							if (connectingFlight) {
-								total++;
-								missedFlight = checkMissed(actual_arr_date, actual_dep_date);
-								if (missedFlight) {
-									missed++;
-								}
-							}
+					depList.add(pair);
+				}
+			}
+			
+			// Find Connections
+			for (Pair arrPair : arrList) {
+				long CRSArrTime = arrPair.CRSTime;
+				long arrTime = arrPair.time;
+				
+				for (Pair depPair : depList) {
+					long CRSDepTime = depPair.CRSTime;
+					long depTime = depPair.time;
+					if (isConnection(CRSArrTime, CRSDepTime)) {
+						connection++;
+						if (isMissedConnection(arrTime, depTime)) {
+							missedConnection++;
 						}
 					}
 				}
 			}
-			context.write(key, new Text(missed + "\t" + total));
+
+			context.write(key, new Text(missedConnection + "\t" + connection));
 		}
 	}
 	
@@ -374,8 +432,8 @@ public class MissedFlight extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 		Job job = Job.getInstance(getConf());
 		job.setJar("job.jar");
-		job.setMapperClass(M.class);
-		job.setReducerClass(R.class);
+		job.setMapperClass(MissedFlightMapper.class);
+		job.setReducerClass(MissedFlightReducer.class);
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(Text.class);
 		job.setOutputKeyClass(Text.class);
@@ -389,7 +447,7 @@ public class MissedFlight extends Configured implements Tool {
 		try {
 			System.exit(ToolRunner.run(new MissedFlight(), args));
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 	}
 
