@@ -6,10 +6,17 @@ run: clean
 	sbt run
 	cat out/part* > finaloutput
 	sh filter.sh
-	
+
 ################################## Cluster #########################################
 
-emr: clean create_cluster
+
+compile:
+	sbt package
+	mv target/scala-2.10/missed*.jar job.jar
+	aws s3 rm s3://spark6/job.jar --recursive
+	aws s3 cp job.jar s3://spark6
+
+emr: clean compile create_cluster
 
 create_cluster:
 	aws emr create-cluster \
