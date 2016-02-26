@@ -7,6 +7,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -445,7 +449,25 @@ public class MissedFlight extends Configured implements Tool {
 
 	public static void main(String[] args) {
 		try {
+			long start =  System.currentTimeMillis();
 			System.exit(ToolRunner.run(new MissedFlight(), args));
+			long end =  System.currentTimeMillis();
+			long timeTaken = end - start;
+			System.out.println("Pseudo Time Take: " +timeTaken);
+			File file = new File("timings.txt");
+			try {
+				// if file doesnt exists, then create it
+				if (!file.exists()) {
+					file.createNewFile();
+				}
+
+				FileWriter fw = new FileWriter(file.getAbsoluteFile());
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write("Pseudo Time : " +String.valueOf(timeTaken));
+				bw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

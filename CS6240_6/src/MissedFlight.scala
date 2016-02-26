@@ -22,7 +22,9 @@ import org.apache.spark.rdd.RDD
  	)
 
  	def main(args: Array[String]) {
- 		val conf = new SparkConf().setAppName("Missed Flight").setMaster("local")
+ 		val startTime: Long = System.currentTimeMillis
+
+ 		val conf = new SparkConf().setAppName("MissedFlight").setMaster("local")
  		val sc = new SparkContext(conf)
 
     	// Input records in rows-array
@@ -83,6 +85,9 @@ import org.apache.spark.rdd.RDD
     
     // Shut down Spark
     sc.stop()
+    val endTime: Long = System.currentTimeMillis
+    val timeTaken = endTime - startTime
+    print (timeTaken)
 }
 
   	/**

@@ -1,0 +1,79 @@
+Prerequisites to run on local cluster:
+
+1. Make sure you have spark installed and set the environment variables
+2. Input data (i.e. all folder after extracting tar.gz) must be present at current working directory (where make commands are being executed). Current folder should be like : all/xxx.csv.gz
+
+Prerequisites to run on EMR (Optional):
+
+1. We are assuming that jobs are being run at your EMR 
+2. In your aws configure make sure your output format is "json". We are using json parser in our script so if aws output is text then there will be a problem.
+Type aws configure on command prompt
+	AccessId : Enter 
+	SecretKey : Enter
+	region : us-west-2
+	output format : json
+3. Keep all folder in your current working directory frome where you will call make emr. 
+4. We are pushing input data to your S3 bucket from our script. In case internet connection losses or problem happens please upload 
+   input data to S3://adibpuri6/input. Output gets generated at s3://adibpuri6/output
+
+=================================== Run ======================================
+
+make run : It will download the dependencies required to compile scala program and then run it locally
+
+optional -> make clean emr : It will run your code on amazon cluster
+
+================== Output For Spark V/S Map-Reduce Job ========================
+
+The following is the output generated for 298.csv.gz in solution_final:
+
+Carrier_Code    Year    Connection      MissedConnection        Percentage
+OO				2015	  809660			77082  		   		  9.52029
+MQ				2015	  688052			57960   	   		  8.42378
+NK				2015	  34550				3099    			  8.96961
+B6				2015	  225131			16485   			  7.3224
+UA				2015	  788657			49458   	       	  6.27117
+AS				2015	  135613			8052    			  5.93748
+VX				2015	  25446				1635    			  6.42537
+HA			    2015	  91333				4297    			  4.70476
+WN				2015	  2326906			110406  		      4.74476
+AA				2015	  1746964 			103657  			  5.93355
+F9				2015	  38548   			4851    			  12.5843
+EV				2015	  967322  			73814   			  7.63076
+DL				2015	  3836174 			154285  			  4.02185
+US				2015	  937179  			48540 	  			  5.17937
+
+
+Timings:
+
+1. Running Locally:
+
+   Framework	 	Time (sec)
+   Map-Reduce
+   spark             112
+
+2. Cluster:
+
+   Framework        Time (sec)
+   Map-Reduce
+   Spark
+
+=================================== Design ==================================
+
+1. In Main function we parses the input record and does sanity check and for each flight that 
+   passes those check along with being not cancelled, it emits tuples as:
+   - (CarrierCode, Year, DestAirportId), (CarrierCode, Year, OrgAirportId), (ScheduledArrivalTime, ActualArrivalTime), (ScheduledDepartureTime, ActualDepartureTime)
+
+F flights: {Key: (CarrierCode, Year, DestAirportId), Value: (ScheduledArrivalTime, ActualArrivalTime)}
+G flights: {Key: (CarrierCode, Year, OrgAirportId), Value: (ScheduledDepartureTime, ActualDepartureTime)}
+
+2. These times' are in epoch minutes calculated by method getEpochMinutes();
+3. Once we got the tuples, we applied cogroup so that values related to same keys get combined.	
+4. We created lists for our values and then iterated to find connections along with the missed ones.
+5. we emitted CarrierCode, Year, AirportId, Connections and MissedConnections
+6. Filter script consolidates this data according to each airline and year along with percentage of missed connections
+
+=================================== Conclusion ==============================
+
+From the output shown above for a small set of data, we can conclude that:
+1. Runtime for jobs in Spark is far much better than jobs ran in Hadoop
+2. Spark works very fast with tuples.
