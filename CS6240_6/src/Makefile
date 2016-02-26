@@ -6,36 +6,24 @@ run: clean
 	sbt run
 	cat out/part* > finaloutput
 	sh filter.sh
-
-# create_cluster:
-# 	aws emr create-cluster \
-#     --name "CLI Test Cluster" \
-#     --release-label emr-4.3.0 \
-#     --applications Name=Spark \
-#     --instance-groups InstanceGroupType=MASTER,InstanceCount=1,InstanceType=c1.medium \
-#                       InstanceGroupType=CORE,InstanceCount=2,InstanceType=c1.medium \
-# --steps Type=CUSTOM_JAR,Name="CLI Test JAR Step",ActionOnFailure=TERMINATE_CLUSTER,Jar=s3://spark6/MissedFlight.jar,MainClass=MissedFlight,Args=[s3://spark6/input,s3://spark6/output] \
-#     --auto-terminate \
-#     --log-uri s3://spark6/log \
-#     --service-role EMR_DefaultRole \
-#     --ec2-attributes InstanceProfile=EMR_EC2_DefaultRole,AvailabilityZone=us-west-2a\
-#     --enable-debugging
-
+	
 ################################## Cluster #########################################
+
+emr: clean create_cluster
 
 create_cluster:
 	aws emr create-cluster \
 	--name "Sample Spark Cluster" \
-	--release-label emr-4.1.0 \
-	--instance-groups InstanceGroupType=MASTER,InstanceCount=1,InstanceType=c1.medium InstanceGroupType=CORE,InstanceCount=2,InstanceType=c1.medium \
-	--use-default-roles \
+	--ami-version 3.11.0 \
 	--applications Name=Spark \
-	--steps file://./step.json \
+	--ec2-attributes KeyName=myKey --instance-type c1.medium --instance-count 3 \
+	--steps Type=Spark,Name="Spark Program",ActionOnFailure=TERMINATE_CLUSTER,Args=[--class,MissedFlight,s3://spark6/job.jar,s3://spark6/input,s3://spark6/output] \
 	--log-uri s3://spark6/log \
-	--auto-terminate
+	--service-role EMR_DefaultRole \
+	--ec2-attributes InstanceProfile=EMR_EC2_DefaultRole,AvailabilityZone=us-west-2a
 
 clean:
-	rm -rf project target out finaloutput
+	rm -rf project target out finaloutput job.jar
 
 clean_submission: clean
 	rm -rf all
