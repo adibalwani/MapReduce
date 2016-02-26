@@ -33,62 +33,62 @@ import org.apache.spark.rdd.RDD
     		.filter ( row => isValidRecord(row) && sanityTest(row) && !isCancelled(row) )
     		.map ( row => { convertToFlight(row) } )
     
-    val depRows = rows.map ( row => { (row._1, row._3) } )
-    val arrRows = rows.map ( row => { (row._2, row._4) } )
+    	val depRows = rows.map ( row => { (row._1, row._3) } )
+    	val arrRows = rows.map ( row => { (row._2, row._4) } )
     
-    val joinedRows = depRows.cogroup(arrRows)
+    	val joinedRows = depRows.cogroup(arrRows)
     
-    val result = joinedRows.map ( row => {
-    	val (k, v) = row
-    	val (depIterable, arrIterable) = v
-    	var depList = new ArrayList[Pair]()
-    	var arrList = new ArrayList[Pair]()
-    	var connection : Int = 0
-    	var missedConnection : Int = 0
+    	val result = joinedRows.map ( row => {
+    		val (k, v) = row
+    		val (depIterable, arrIterable) = v
+    		var depList = new ArrayList[Pair]()
+    		var arrList = new ArrayList[Pair]()
+    		var connection : Int = 0
+    		var missedConnection : Int = 0
 
-      // Fill List
-      depIterable.foreach ( item => {
-      	depList.add(Pair(item._1, item._2))
+        // Fill List
+        depIterable.foreach ( item => {
+      		depList.add(Pair(item._1, item._2))
       	})
-      arrIterable.foreach ( item => {
-      	arrList.add(Pair(item._1, item._2))
+        arrIterable.foreach ( item => {
+      		arrList.add(Pair(item._1, item._2))
       	})
       
-      // Find Connections
-      val arrIterator = arrList.iterator
-      while (arrIterator.hasNext()) {
-      	val arrPair = arrIterator.next()
-      	val CRSArrTime = arrPair.CRSTime
-      	val arrTime = arrPair.time
+        // Find Connections
+        val arrIterator = arrList.iterator
+        while (arrIterator.hasNext()) {
+      		val arrPair = arrIterator.next()
+      		val CRSArrTime = arrPair.CRSTime
+      		val arrTime = arrPair.time
 
-      	val depIterator = depList.iterator
-      	while (depIterator.hasNext()) {
-      		val depPair = depIterator.next()
-      		val CRSDepTime = depPair.CRSTime
-      		val depTime = depPair.time
+      		val depIterator = depList.iterator
+      		while (depIterator.hasNext()) {
+      			val depPair = depIterator.next()
+      			val CRSDepTime = depPair.CRSTime
+      			val depTime = depPair.time
 
-      		if (isConnection(CRSArrTime, CRSDepTime)) {
-      			connection += 1;
-      			if (isMissedConnection(arrTime, depTime)) {
-      				missedConnection += 1;
+      			if (isConnection(CRSArrTime, CRSDepTime)) {
+      				connection += 1;
+      				if (isMissedConnection(arrTime, depTime)) {
+      					missedConnection += 1;
+					}
       			}
       		}
-      	}
-      }
+        }
 
-		  // Emit
-		  k._1 + " " + k._2 + " " + k._3 + " " + missedConnection + " " + connection
-		  })
+		// Emit
+		k._1 + " " + k._2 + " " + k._3 + " " + missedConnection + " " + connection
+		})
     
-    // Write the output to a file
-    result.saveAsTextFile("out")
+    	// Write the output to a file
+    	result.saveAsTextFile("out")
     
-    // Shut down Spark
-    sc.stop()
-    val endTime: Long = System.currentTimeMillis
-    val timeTaken = endTime - startTime
-    print (timeTaken)
-}
+    	// Shut down Spark
+    	sc.stop()
+    	val endTime: Long = System.currentTimeMillis
+    	val timeTaken = endTime - startTime
+    	print (timeTaken)
+	}
 
   	/**
    	 * 
@@ -175,7 +175,7 @@ import org.apache.spark.rdd.RDD
 		CRSArrTime - CRSDepTime - CRSElapsedTime
 	}
 
-  /**
+    /**
 	 * Return the arrival date and time in epoch minutes
 	 * 
 	 * @param depFlight Departure flight date in epoch minutes 
@@ -188,7 +188,7 @@ import org.apache.spark.rdd.RDD
 	 		depFlight + elapsedTime + depTime + timeZone
 	 }
 
-  /**
+    /**
 	 * Return the departure date and time in epoch minutes
 	 * 
 	 * @param depFlight Departure flight date in epoch minutes
@@ -199,7 +199,7 @@ import org.apache.spark.rdd.RDD
 	 	depFlight + depTime
 	 }
 
-  /**
+    /**
 	 * Check whether the flights are a missed connection or not
 	 * 
 	 * @param CRSArrTime The scheduled arrival time
