@@ -46,38 +46,38 @@ import org.apache.spark.rdd.RDD
     		var connection : Int = 0
     		var missedConnection : Int = 0
 
-        // Fill List
-        depIterable.foreach ( item => {
-      		depList.add(Pair(item._1, item._2))
-      	})
-        arrIterable.foreach ( item => {
-      		arrList.add(Pair(item._1, item._2))
-      	})
+        	// Fill List
+        	depIterable.foreach ( item => {
+	      		depList.add(Pair(item._1, item._2))
+    	  	})
+        	arrIterable.foreach ( item => {
+      			arrList.add(Pair(item._1, item._2))
+      		})
       
-        // Find Connections
-        val arrIterator = arrList.iterator
-        while (arrIterator.hasNext()) {
-      		val arrPair = arrIterator.next()
-      		val CRSArrTime = arrPair.CRSTime
-      		val arrTime = arrPair.time
+        	// Find Connections
+        	val arrIterator = arrList.iterator
+        	while (arrIterator.hasNext()) {
+      			val arrPair = arrIterator.next()
+      			val CRSArrTime = arrPair.CRSTime
+      			val arrTime = arrPair.time
 
-      		val depIterator = depList.iterator
-      		while (depIterator.hasNext()) {
-      			val depPair = depIterator.next()
-      			val CRSDepTime = depPair.CRSTime
-      			val depTime = depPair.time
+      			val depIterator = depList.iterator
+      			while (depIterator.hasNext()) {
+      				val depPair = depIterator.next()
+      				val CRSDepTime = depPair.CRSTime
+      				val depTime = depPair.time
 
-      			if (isConnection(CRSArrTime, CRSDepTime)) {
-      				connection += 1;
-      				if (isMissedConnection(arrTime, depTime)) {
-      					missedConnection += 1;
-					}
+      				if (isConnection(CRSArrTime, CRSDepTime)) {
+      					connection += 1;
+      					if (isMissedConnection(arrTime, depTime)) {
+      						missedConnection += 1;
+						}
+    	  			}
       			}
-      		}
-        }
+        	}
 
-		// Emit
-		k._1 + " " + k._2 + " " + k._3 + " " + missedConnection + " " + connection
+			// Emit
+			k._1 + " " + k._2 + " " + k._3 + " " + missedConnection + " " + connection
 		})
     
     	// Write the output to a file
@@ -91,9 +91,10 @@ import org.apache.spark.rdd.RDD
 	}
 
   	/**
-   	 * 
+   	 * Converts given flight record to tuples of key and value pairs
    	 */
-   def convertToFlight (row : Array[String]) : ((String, String, String), (String, String, String), (Long, Long), (Long, Long)) = {
+    def convertToFlight (row : Array[String]) : 
+    	((String, String, String), (String, String, String), (Long, Long), (Long, Long)) = {
    		val carrierCode = row(8)
    		val year = row(0)
    		val timeZone = getTimeZone(row)
@@ -125,7 +126,8 @@ import org.apache.spark.rdd.RDD
 		val CRSArrEpochTime = getArrivalEpochMinutes(CRSDepFlightDate, CRSElapsedTime, CRSDepTime, timeZone)
 		val arrEpochTime = getArrivalEpochMinutes(depFlightDate, actualElapsedTime, depTime, timeZone)
 
-		((carrierCode, year, destAirportId), (carrierCode, year, originAirportId), (CRSArrEpochTime, arrEpochTime), (CRSDepEpochTime, depEpochTime))
+		((carrierCode, year, destAirportId), (carrierCode, year, originAirportId),
+			(CRSArrEpochTime, arrEpochTime), (CRSDepEpochTime, depEpochTime))
 	}
 
   	/**
@@ -184,7 +186,8 @@ import org.apache.spark.rdd.RDD
 	 * @param timezone Timezone in minutes
 	 * @return Arrival Time
 	 */
-	 def getArrivalEpochMinutes (depFlight : Long, elapsedTime : Int, depTime : Int, timeZone : Int) : Long = {
+	 def getArrivalEpochMinutes (depFlight : Long, elapsedTime : Int, depTime : Int, timeZone : Int) :
+	 	Long = {
 	 		depFlight + elapsedTime + depTime + timeZone
 	 }
 

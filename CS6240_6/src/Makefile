@@ -10,7 +10,7 @@ run: clean
 ################################## Cluster #########################################
 
 
-compile:
+compile: clean
 	sbt package
 	mv target/scala-2.10/missed*.jar job.jar
 	aws s3 rm s3://spark6/job.jar --recursive
