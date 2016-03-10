@@ -19,7 +19,7 @@ public class Prediction extends Configured implements Tool {
 		Job job = Job.getInstance(getConf());
 		job.setJar("job.jar");
 		job.setMapperClass(ModelMapper.class);
-		//job.setReducerClass(ModelReducer.class);
+		job.setReducerClass(ModelReducer.class);
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(FlightDetail.class);
 		job.setOutputKeyClass(Text.class);

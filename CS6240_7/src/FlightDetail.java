@@ -25,6 +25,19 @@ public class FlightDetail implements Writable {
 	private IntWritable CRSArrTime;
 	private BooleanWritable delay;
 	private BooleanWritable holiday;
+	
+	public FlightDetail() {
+		month = new IntWritable();
+		dayOfMonth = new IntWritable();
+		dayOfWeek = new IntWritable();
+		carrierCode = new Text();
+		originAirportId = new IntWritable();
+		destAirportId = new IntWritable();
+		CRSDepTime = new IntWritable();
+		CRSArrTime = new IntWritable();
+		delay = new BooleanWritable();
+		holiday = new BooleanWritable();
+	}
 
 	@Override
 	public void readFields(DataInput dataInput) throws IOException {

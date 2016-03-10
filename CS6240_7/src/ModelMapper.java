@@ -8,6 +8,8 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 /**
  * Mapper class for cleaning and  synthesizing input
+ * 
+ * @author Adib Alwani
  */
 public class ModelMapper extends Mapper<Object, Text, Text, FlightDetail> {
 	
