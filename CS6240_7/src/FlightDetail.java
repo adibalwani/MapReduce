@@ -15,7 +15,6 @@ import org.apache.hadoop.io.Writable;
  */
 public class FlightDetail implements Writable {
 	
-	private IntWritable month;
 	private IntWritable dayOfMonth;
 	private IntWritable dayOfWeek;
 	private Text carrierCode;
@@ -27,7 +26,6 @@ public class FlightDetail implements Writable {
 	private BooleanWritable holiday;
 	
 	public FlightDetail() {
-		month = new IntWritable();
 		dayOfMonth = new IntWritable();
 		dayOfWeek = new IntWritable();
 		carrierCode = new Text();
@@ -41,7 +39,6 @@ public class FlightDetail implements Writable {
 
 	@Override
 	public void readFields(DataInput dataInput) throws IOException {
-		month.readFields(dataInput);
 		dayOfMonth.readFields(dataInput);
 		dayOfWeek.readFields(dataInput);
 		carrierCode.readFields(dataInput);
@@ -55,7 +52,6 @@ public class FlightDetail implements Writable {
 
 	@Override
 	public void write(DataOutput dataOutput) throws IOException {
-		month.write(dataOutput);
 		dayOfMonth.write(dataOutput);
 		dayOfWeek.write(dataOutput);
 		carrierCode.write(dataOutput);
@@ -65,14 +61,6 @@ public class FlightDetail implements Writable {
 		CRSArrTime.write(dataOutput);
 		delay.write(dataOutput);
 		holiday.write(dataOutput);
-	}
-
-	public IntWritable getMonth() {
-		return month;
-	}
-
-	public void setMonth(IntWritable month) {
-		this.month = month;
 	}
 
 	public IntWritable getDayOfMonth() {

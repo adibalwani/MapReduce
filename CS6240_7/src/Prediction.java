@@ -14,8 +14,14 @@ import org.apache.hadoop.util.ToolRunner;
  */
 public class Prediction extends Configured implements Tool {
 	
-	@Override
-	public int run(String[] args) throws Exception {
+	/**
+	 * Run MapReduce job to build model
+	 * 
+	 * @param args Command line args
+	 * @return Job report
+	 * @throws Exception
+	 */
+	private boolean buildModel(String[] args) throws Exception {
 		Job job = Job.getInstance(getConf());
 		job.setJar("job.jar");
 		job.setMapperClass(ModelMapper.class);
@@ -26,7 +32,36 @@ public class Prediction extends Configured implements Tool {
 		job.setOutputValueClass(Text.class);
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		return job.waitForCompletion(true) ? 0 : 1;
+		return job.waitForCompletion(true);
+	}
+	
+	/**
+	 * Run MapReduce job to test model
+	 * 
+	 * @param args Command line args
+	 * @return Job report
+	 * @throws Exception
+	 */
+	private boolean testModel(String[] args) throws Exception {
+		Job job = Job.getInstance(getConf());
+		job.setJar("job.jar");
+		job.setPartitionerClass(KeyPartitioner.class);
+		job.setGroupingComparatorClass(KeyComparator.class);
+		job.setMapperClass(TestMapper.class);
+		job.setReducerClass(TestReducer.class);
+		job.setMapOutputKeyClass(Key.class);
+		job.setMapOutputValueClass(FlightDetailModelPair.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+		FileInputFormat.addInputPath(job, new Path(args[2]));
+		FileInputFormat.addInputPath(job, new Path(args[3]));
+		FileOutputFormat.setOutputPath(job, new Path(args[4]));
+		return job.waitForCompletion(true);
+	}
+	
+	@Override
+	public int run(String[] args) throws Exception {
+		 return buildModel(args) && testModel(args) ? 0 : 1;
 	}
 
 	public static void main(String[] args) {
