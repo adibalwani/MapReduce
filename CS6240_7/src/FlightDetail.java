@@ -15,6 +15,8 @@ import org.apache.hadoop.io.Writable;
  */
 public class FlightDetail implements Writable {
 	
+	private IntWritable flightNumber;
+	private Text flightDate;
 	private IntWritable dayOfMonth;
 	private IntWritable dayOfWeek;
 	private Text carrierCode;
@@ -26,6 +28,8 @@ public class FlightDetail implements Writable {
 	private BooleanWritable holiday;
 	
 	public FlightDetail() {
+		flightNumber = new IntWritable();
+		flightDate = new Text();
 		dayOfMonth = new IntWritable();
 		dayOfWeek = new IntWritable();
 		carrierCode = new Text();
@@ -39,6 +43,8 @@ public class FlightDetail implements Writable {
 
 	@Override
 	public void readFields(DataInput dataInput) throws IOException {
+		flightNumber.readFields(dataInput);
+		flightDate.readFields(dataInput);
 		dayOfMonth.readFields(dataInput);
 		dayOfWeek.readFields(dataInput);
 		carrierCode.readFields(dataInput);
@@ -52,6 +58,8 @@ public class FlightDetail implements Writable {
 
 	@Override
 	public void write(DataOutput dataOutput) throws IOException {
+		flightNumber.write(dataOutput);
+		flightDate.write(dataOutput);
 		dayOfMonth.write(dataOutput);
 		dayOfWeek.write(dataOutput);
 		carrierCode.write(dataOutput);
@@ -61,6 +69,22 @@ public class FlightDetail implements Writable {
 		CRSArrTime.write(dataOutput);
 		delay.write(dataOutput);
 		holiday.write(dataOutput);
+	}
+
+	public IntWritable getFlightNumber() {
+		return flightNumber;
+	}
+
+	public void setFlightNumber(IntWritable flightNumber) {
+		this.flightNumber = flightNumber;
+	}
+
+	public Text getFlightDate() {
+		return flightDate;
+	}
+
+	public void setFlightDate(Text flightDate) {
+		this.flightDate = flightDate;
 	}
 
 	public IntWritable getDayOfMonth() {

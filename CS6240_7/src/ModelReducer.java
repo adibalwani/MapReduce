@@ -1,8 +1,13 @@
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -18,7 +23,7 @@ import weka.core.DenseInstance;
  * 
  * @author Adib Alwani
  */
-public class ModelReducer extends Reducer<Text, FlightDetail, Text, Text> {
+public class ModelReducer extends Reducer<Text, FlightDetail, Text, BytesWritable> {
 	
 	/**
 	 * Initialize an empty training set
@@ -116,9 +121,11 @@ public class ModelReducer extends Reducer<Text, FlightDetail, Text, Text> {
 		
 		try {
 			Classifier model = classify(trainingSet);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			weka.core.SerializationHelper.write(baos, model);
-			context.write(key, new Text("::" + baos.toString()));
+			FileSystem fileSystem = FileSystem.get(URI.create("models/"),
+					new Configuration());
+			FSDataOutputStream fsDataOutputStream = fileSystem.create(
+					new Path("models/" + key.toString()));
+			weka.core.SerializationHelper.write(fsDataOutputStream, model);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
