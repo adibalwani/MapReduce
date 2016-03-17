@@ -15,8 +15,11 @@ download_lib:
 	wget -O lib/hadoop-mapreduce-client-core-2.6.3.jar https://www.dropbox.com/s/xveq1qefjde2hnk/hadoop-mapreduce-client-core-2.6.3.jar?dl=0
 	wget -O lib/weka-3.7.3.jar https://www.dropbox.com/s/cyvffylllu0o6ce/weka-3.7.3.jar?dl=0
 
-compile: download_lib
-	javac -cp "lib/*" *.java
+Prediction:
+	javac -cp "lib/*" FlightDetail.java FlightHandler.java ModelMapper.java ModelReducer.java Prediction.java TestMapper.java TestReducer.java
+
+compile: download_lib Prediction
+	#javac -cp "lib/*" *.java
 	jar cvf job.jar *.class
 
 ######################### AWS ###################################
