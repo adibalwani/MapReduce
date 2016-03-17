@@ -19,10 +19,9 @@ public class ModelMapper extends Mapper<Object, Text, Text, FlightDetail> {
 		String[] row = handler.parse(value.toString(), 110);
 		if (row != null && handler.sanityTest(row, FlightHandler.TRAIN) && !handler.isCancelled(row)) {
 			FlightDetail flightDetail = handler.getFlightDetails(row);
-			String year = row[0];
 			String month = row[2];
 			
-			context.write(new Text(month + "_" + year), flightDetail);
+			context.write(new Text(month), flightDetail);
 		}
 	}
 }

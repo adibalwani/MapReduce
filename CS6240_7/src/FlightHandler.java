@@ -104,10 +104,36 @@ public class FlightHandler {
 			flightDetail.setDelay(new BooleanWritable(true));
 		}
 		
-		// TODO: Add Holiday implementation
-		flightDetail.setHoliday(new BooleanWritable(true));
+		int month = (int) Float.parseFloat(row[2]);
+		flightDetail.setHoliday(new BooleanWritable(isHoliday(month, dayOfMonth)));
 		
 		return flightDetail;
+	}
+	
+	/**
+	 * Checks whether the provided date is close to a holiday
+	 * 
+	 * @param month Month in the year
+	 * @param dayOfMonth Day of the month
+	 * @return true iff the date is close to a holiday. False, otherwise
+	 */
+	private boolean isHoliday(int month, int dayOfMonth) {
+		// New Year
+		if (month == 1 && dayOfMonth == 1) {
+			return true;
+		}
+		
+		// Thanksgiving
+		if (month == 11 && dayOfMonth > 20 && dayOfMonth < 30) {
+			return true;
+		}
+		
+		// Christmas
+		if (month == 12 && dayOfMonth > 20 && dayOfMonth <= 31) {
+			return true;
+		}
+				
+		return false;
 	}
 	
 	/**

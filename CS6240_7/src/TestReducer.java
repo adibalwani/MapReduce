@@ -31,9 +31,7 @@ public class TestReducer extends Reducer<Text, FlightDetail, Text, Text> {
 	 * @throws Exception
 	 */
 	private Classifier getClassifier(String fileName) throws Exception {
-		Path path = new Path("models/4_1997");
-		// TODO: Change the Path at the end
-		//Path path = new Path("models/" + fileName);
+		Path path = new Path("models/" + fileName);
 	    FileSystem fileSystem = path.getFileSystem(new Configuration());
 	    FSDataInputStream inputStream = fileSystem.open(path);
 		return (Classifier) SerializationHelper.read(inputStream);
@@ -43,8 +41,8 @@ public class TestReducer extends Reducer<Text, FlightDetail, Text, Text> {
 	 * Get the dense instance from the given flight details
 	 * 
 	 * @param flightDetail Details of a flight
-	 * @param set
-	 * @return
+	 * @param set Instance set
+	 * @return Instance of flight details
 	 */
 	private Instance getInstance(FlightDetail flightDetail, Instances set) {
 		Instance instance = new DenseInstance(9);

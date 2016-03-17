@@ -24,14 +24,13 @@ public class TestMapper extends Mapper<Object, Text, Text, FlightDetail> {
 			row = Arrays.copyOfRange(row, 1, row.length);
 			if (handler.sanityTest(row, FlightHandler.TEST)) {
 				FlightDetail flightDetail = handler.getFlightDetails(row);
-				String year = row[0];
 				String month = row[2];
 				int flightNumber = (int) Float.parseFloat(row[10]);
 				flightDetail.setFlightNumber(new IntWritable(flightNumber));
 				String flightDate = row[5];
 				flightDetail.setFlightDate(new Text(flightDate));
 				
-				context.write(new Text(month + "_" + year), flightDetail);
+				context.write(new Text(month), flightDetail);
 			}
 		}
 	}

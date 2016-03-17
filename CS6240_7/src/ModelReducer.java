@@ -104,9 +104,10 @@ public class ModelReducer extends Reducer<Text, FlightDetail, Text, BytesWritabl
 	 * @throws Exception
 	 */
 	private Classifier classify(Instances trainingSet) throws Exception {
-		Classifier model = (Classifier) new NaiveBayes();
-		model.buildClassifier(trainingSet);
-		return model;
+		NaiveBayes naiveBayes = new NaiveBayes();
+		naiveBayes.setUseKernelEstimator(true);
+		naiveBayes.buildClassifier(trainingSet);
+		return naiveBayes;
 	}
 	
 	@Override
