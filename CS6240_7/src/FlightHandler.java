@@ -10,6 +10,9 @@ import org.apache.hadoop.io.Text;
  */
 public class FlightHandler {
 	
+	public static final int TRAIN = 1;
+	public static final int TEST = 2; 
+	
 	/**
 	 * Parse a CSV record given as string
 	 * - Remove any quotes from record
@@ -88,10 +91,10 @@ public class FlightHandler {
 		int destAirportId = (int) Float.parseFloat(row[20]);
 		flightDetail.setDestAirportId(new IntWritable(destAirportId));
 		
-		int CRSDepTime = timeToMinute(row[29]);
+		int CRSDepTime = (int) Float.parseFloat(row[29]);
 		flightDetail.setCRSDepTime(new IntWritable(CRSDepTime));
 		
-		int CRSArrTime = timeToMinute(row[40]);
+		int CRSArrTime = (int) Float.parseFloat(row[40]);
 		flightDetail.setCRSArrTime(new IntWritable(CRSArrTime));
 		
 		if (!row[43].equals("NA")) {
@@ -100,7 +103,6 @@ public class FlightHandler {
 		} else {
 			flightDetail.setDelay(new BooleanWritable(true));
 		}
-		
 		
 		// TODO: Add Holiday implementation
 		flightDetail.setHoliday(new BooleanWritable(true));
@@ -112,9 +114,10 @@ public class FlightHandler {
 	 * Check whether the given record passes the sanitary test
 	 * 
 	 * @param row Record of flight OTP data
+	 * @param type Type of input record
 	 * @return true iff it passes sanity test. False, otherwise
 	 */
-	public boolean sanityTest(String[] row) {
+	public boolean sanityTest(String[] row, int type) {
 		try {
 			
 			// hh:mm format
@@ -157,6 +160,11 @@ public class FlightHandler {
 			if (row[14].isEmpty() || row[23].isEmpty() || row[15].isEmpty() || row[24].isEmpty() ||
 					row[16].isEmpty() || row[25].isEmpty() || row[18].isEmpty() || row[27].isEmpty()) {
 				return false;
+			}
+			
+			// Cancel further sanity test
+			if (type == TEST) {
+				return true;
 			}
 			
 			// For flights that are not cancelled
@@ -238,7 +246,7 @@ public class FlightHandler {
 	 * @return true iff object is model. False, otherwise
 	 */
 	public boolean isModel(String record) {
-		String[] modelPair = record.split("::");
+		String[] modelPair = record.split("-->");
 		return modelPair.length == 2;
 	}
 

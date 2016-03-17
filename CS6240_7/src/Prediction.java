@@ -1,5 +1,7 @@
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -29,7 +31,7 @@ public class Prediction extends Configured implements Tool {
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(FlightDetail.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
+		job.setOutputValueClass(BytesWritable.class);
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		return job.waitForCompletion(true);
@@ -45,17 +47,14 @@ public class Prediction extends Configured implements Tool {
 	private boolean testModel(String[] args) throws Exception {
 		Job job = Job.getInstance(getConf());
 		job.setJar("job.jar");
-		job.setPartitionerClass(KeyPartitioner.class);
-		job.setGroupingComparatorClass(KeyComparator.class);
 		job.setMapperClass(TestMapper.class);
 		job.setReducerClass(TestReducer.class);
-		job.setMapOutputKeyClass(Key.class);
-		job.setMapOutputValueClass(FlightDetailModelPair.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(FlightDetail.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		FileInputFormat.addInputPath(job, new Path(args[2]));
-		FileInputFormat.addInputPath(job, new Path(args[3]));
-		FileOutputFormat.setOutputPath(job, new Path(args[4]));
+		FileOutputFormat.setOutputPath(job, new Path(args[3]));
 		return job.waitForCompletion(true);
 	}
 	

@@ -15,8 +15,7 @@ download_lib:
 	wget -O lib/hadoop-mapreduce-client-core-2.6.3.jar https://www.dropbox.com/s/xveq1qefjde2hnk/hadoop-mapreduce-client-core-2.6.3.jar?dl=0
 	wget -O lib/weka-3.7.3.jar https://www.dropbox.com/s/cyvffylllu0o6ce/weka-3.7.3.jar?dl=0
 
-compile:
-	# download_lib
+compile: download_lib
 	javac -cp "lib/*" *.java
 	jar cvf job.jar *.class
 
@@ -56,16 +55,17 @@ get_s3_data:
 pseudo: clean setup_hdfs compile run_pseudo hstop
 
 test1:
+	javac -cp "lib/*" *.java
+	jar cvf job.jar *.class
 	hadoop fs -rm -r -f /user/adib/model_output
 	hadoop fs -rm -r -f /user/adib/output
 	rm -rf model_output
 	rm -rf output
-test: compile test1 run_pseudo
+test: test1 run_pseudo
 
 run_pseudo:
-	hadoop jar job.jar Prediction /user/adib/input/a6history model_output /user/adib/model_output /user/adib/input/a6test output -libjars './lib/weka-3.7.3.jar'
-	hadoop fs -get model_output
-	cat output/part* > prediction_output
+	hadoop jar job.jar Prediction /user/adib/input/a6history model_output /user/adib/input/a6test output -libjars './lib/weka-3.7.3.jar'
+	hadoop fs -get output
 
 emr: compile configure_s3 create_cluster wait_for_completion get_s3_data delete_bucket filter
 
