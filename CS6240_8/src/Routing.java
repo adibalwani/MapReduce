@@ -46,14 +46,14 @@ public class Routing extends Configured implements Tool {
 		job.setMapOutputValueClass(FlightDetail.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
-		FileInputFormat.addInputPath(job, new Path(args[0]));
-		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		FileInputFormat.addInputPath(job, new Path(args[2]));
+		FileOutputFormat.setOutputPath(job, new Path(args[3]));
 		return job.waitForCompletion(true);
 	}
 	
 	@Override
 	public int run(String[] args) throws Exception {
-		return buildModel(args) && PossibleConnections(args) ? 0 : 1;
+		return buildModel(args) /*&& PossibleConnections(args)*/ ? 0 : 1;
 	}
 
 	public static void main(String[] args) {

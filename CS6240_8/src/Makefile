@@ -17,7 +17,7 @@ download_lib:
 	wget -O lib/weka-3.7.3.jar https://www.dropbox.com/s/cyvffylllu0o6ce/weka-3.7.3.jar?dl=0
 
 compile_routing:
-	javac -cp "lib/*" FlightDetail.java FlightHandler.java ModelMapper.java ModelReducer.java Routing.java TestMapper.java TestReducer.java
+	javac -cp "lib/*" FlightDetail.java FlightHandler.java ModelMapper.java ModelReducer.java Routing.java TestMapper.java TestReducer.java ConnectionMapper.java ConnectionReducer.java
 
 form_fat_jar:
 	rm -rf fat_jar
@@ -65,7 +65,7 @@ get_s3_data:
 pseudo: clean setup_hdfs compile run_pseudo confusion_matrix hstop
 
 run_pseudo:
-	hadoop jar job.jar Routing /user/adib/input/a7history model_output /user/adib/input/a7test output
+	hadoop jar job.jar Routing /user/adib/input/a7history model_output /user/adib/input/a7test missed_flight
 	hadoop fs -get output
 	cat output/part* > solution_final
 
