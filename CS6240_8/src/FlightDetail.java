@@ -3,7 +3,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.io.BooleanWritable;
+import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
@@ -17,11 +19,16 @@ public class FlightDetail implements Writable {
 	
 	private IntWritable flightNumber;
 	private Text flightDate;
+	private BooleanWritable arrival;
 	private IntWritable dayOfMonth;
 	private IntWritable dayOfWeek;
 	private Text carrierCode;
+	private Text origin;
+	private Text destination;
 	private IntWritable originAirportId;
 	private IntWritable destAirportId;
+	private LongWritable crsDepTimeEpoch;
+	private LongWritable crsArrTimeEpoch;
 	private IntWritable CRSDepTime;
 	private IntWritable CRSArrTime;
 	private BooleanWritable delay;
@@ -30,11 +37,16 @@ public class FlightDetail implements Writable {
 	public FlightDetail() {
 		flightNumber = new IntWritable();
 		flightDate = new Text();
+		arrival = new BooleanWritable();
 		dayOfMonth = new IntWritable();
 		dayOfWeek = new IntWritable();
 		carrierCode = new Text();
+		origin = new Text();
+		destination = new Text();
 		originAirportId = new IntWritable();
 		destAirportId = new IntWritable();
+		crsDepTimeEpoch = new LongWritable();
+		crsArrTimeEpoch =  new LongWritable();
 		CRSDepTime = new IntWritable();
 		CRSArrTime = new IntWritable();
 		delay = new BooleanWritable();
@@ -45,11 +57,16 @@ public class FlightDetail implements Writable {
 	public void readFields(DataInput dataInput) throws IOException {
 		flightNumber.readFields(dataInput);
 		flightDate.readFields(dataInput);
+		arrival.readFields(dataInput);
 		dayOfMonth.readFields(dataInput);
 		dayOfWeek.readFields(dataInput);
 		carrierCode.readFields(dataInput);
+		origin.readFields(dataInput);
+		destination.readFields(dataInput);
 		originAirportId.readFields(dataInput);
 		destAirportId.readFields(dataInput);
+		crsArrTimeEpoch.readFields(dataInput);
+		crsDepTimeEpoch.readFields(dataInput);
 		CRSDepTime.readFields(dataInput);
 		CRSArrTime.readFields(dataInput);
 		delay.readFields(dataInput);
@@ -60,11 +77,16 @@ public class FlightDetail implements Writable {
 	public void write(DataOutput dataOutput) throws IOException {
 		flightNumber.write(dataOutput);
 		flightDate.write(dataOutput);
+		arrival.write(dataOutput);
 		dayOfMonth.write(dataOutput);
 		dayOfWeek.write(dataOutput);
 		carrierCode.write(dataOutput);
+		origin.write(dataOutput);
+		destination.write(dataOutput);
 		originAirportId.write(dataOutput);
 		destAirportId.write(dataOutput);
+		crsArrTimeEpoch.write(dataOutput);
+		crsDepTimeEpoch.write(dataOutput);
 		CRSDepTime.write(dataOutput);
 		CRSArrTime.write(dataOutput);
 		delay.write(dataOutput);
@@ -85,6 +107,14 @@ public class FlightDetail implements Writable {
 
 	public void setFlightDate(Text flightDate) {
 		this.flightDate = flightDate;
+	}
+
+	public BooleanWritable getArrival() {
+		return arrival;
+	}
+
+	public void setArrival(BooleanWritable arrival) {
+		this.arrival = arrival;
 	}
 
 	public IntWritable getDayOfMonth() {
@@ -111,6 +141,22 @@ public class FlightDetail implements Writable {
 		this.carrierCode = carrierCode;
 	}
 
+	public Text getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Text source) {
+		this.origin = source;
+	}
+
+	public Text getDestination() {
+		return destination;
+	}
+
+	public void setDestination(Text destination) {
+		this.destination = destination;
+	}
+
 	public IntWritable getOriginAirportId() {
 		return originAirportId;
 	}
@@ -125,6 +171,22 @@ public class FlightDetail implements Writable {
 
 	public void setDestAirportId(IntWritable destAirportId) {
 		this.destAirportId = destAirportId;
+	}
+
+	public LongWritable getCrsDepTimeEpoch() {
+		return crsDepTimeEpoch;
+	}
+
+	public void setCrsDepTimeEpoch(LongWritable crsDepTimeEpoch) {
+		this.crsDepTimeEpoch = crsDepTimeEpoch;
+	}
+
+	public LongWritable getCrsArrTimeEpoch() {
+		return crsArrTimeEpoch;
+	}
+
+	public void setCrsArrTimeEpoch(LongWritable crsArrTimeEpoch) {
+		this.crsArrTimeEpoch = crsArrTimeEpoch;
 	}
 
 	public IntWritable getCRSDepTime() {

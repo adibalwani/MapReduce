@@ -85,6 +85,11 @@ public class FlightHandler {
 		String carrierCode = row[8];
 		flightDetail.setCarrierCode(new Text(carrierCode));
 		
+		String source = row[14];
+		flightDetail.setOrigin(new Text(source));
+		String destination = row[23];
+		flightDetail.setDestination(new Text(destination));
+		
 		int originAirportId = (int) Float.parseFloat(row[11]);
 		flightDetail.setOriginAirportId(new IntWritable(originAirportId));
 		

@@ -36,23 +36,24 @@ public class Routing extends Configured implements Tool {
 		return job.waitForCompletion(true);
 	}
 	
-	/*// request file, input file
-	private boolean PossibleConnections(String[] args) {
+	// request file, input file
+	private boolean PossibleConnections(String[] args) throws Exception {
 		Job job = Job.getInstance(getConf());
 		job.setJar("job.jar");
 		job.setMapperClass(ConnectionMapper.class);
 		job.setReducerClass(ConnectionReducer.class);
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(RoutingFlight.class);
+		job.setMapOutputValueClass(FlightDetail.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(BytesWritable.class);
+		job.setOutputValueClass(Text.class);
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-	}*/
+		return job.waitForCompletion(true);
+	}
 	
 	@Override
 	public int run(String[] args) throws Exception {
-		return buildModel(args) ? 0 : 1;
+		return buildModel(args) && PossibleConnections(args) ? 0 : 1;
 	}
 
 	public static void main(String[] args) {
