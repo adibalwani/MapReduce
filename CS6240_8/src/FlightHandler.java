@@ -1,3 +1,7 @@
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -76,6 +80,9 @@ public class FlightHandler {
 	public FlightDetail getFlightDetails(String[] row) {
 		FlightDetail flightDetail = new FlightDetail();
 		
+		int flightNumber = (int) Float.parseFloat(row[10]);
+		flightDetail.setFlightNumber(new IntWritable(flightNumber));
+		
 		int dayOfMonth = (int) Float.parseFloat(row[3]);
 		flightDetail.setDayOfMonth(new IntWritable(dayOfMonth));
 		
@@ -85,8 +92,9 @@ public class FlightHandler {
 		String carrierCode = row[8];
 		flightDetail.setCarrierCode(new Text(carrierCode));
 		
-		String source = row[14];
-		flightDetail.setOrigin(new Text(source));
+		String origin = row[14];
+		flightDetail.setOrigin(new Text(origin));
+		
 		String destination = row[23];
 		flightDetail.setDestination(new Text(destination));
 		
@@ -240,7 +248,7 @@ public class FlightHandler {
 	 * @return Minutes minutes since day started
 	 * @throws NumberFormatException
 	 */
-	private int timeToMinute(String time) throws NumberFormatException {
+	public int timeToMinute(String time) throws NumberFormatException {
 		if (time == null || time.length() == 0) {
 			throw new NumberFormatException();
 		}
@@ -279,6 +287,65 @@ public class FlightHandler {
 	public boolean isModel(String record) {
 		String[] modelPair = record.split("-->");
 		return modelPair.length == 2;
+	}
+	
+	/**
+	 * Convert the given date in YYYY-MM-DD format into 
+	 * the minutes since epoch
+	 * 
+	 * @param aDate Date
+	 * @return Minutes since epoch
+	 */
+	public long getEpochMinutes(String aDate) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = null;
+		try {
+			date = simpleDateFormat.parse(aDate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return date.getTime() / (long) (60 * 1000);
+	}
+	
+	/**
+	 * Return the timezone in minutes
+	 * 
+	 * @param row Record of flight OTP data
+	 * @return Timezone
+	 */
+	public int getTimeZone(String[] row) {
+		// hh:mm format
+		int CRSArrTime = timeToMinute(row[40]);
+		int CRSDepTime = timeToMinute(row[29]);
+		
+		// minutes format
+		int CRSElapsedTime = (int) Float.parseFloat(row[50]);
+		return CRSArrTime - CRSDepTime - CRSElapsedTime;
+	}
+	
+	/**
+	 * Return the arrival date and time in epoch minutes
+	 * 
+	 * @param depFlight Departure flight date in epoch minutes 
+	 * @param elapsedTime Duration of flight in minutes
+	 * @param depTime Departure flight time in epoch minutes
+	 * @param timezone Timezone in minutes
+	 * @return Arrival Time
+	 */
+	public long getArrivalEpochMinutes(long depFlight, int elapsedTime,
+			int depTime, int timeZone) {
+		return depFlight + elapsedTime + depTime + timeZone;
+	}
+	
+	/**
+	 * Return the departure date and time in epoch minutes
+	 * 
+	 * @param depFlight Departure flight date in epoch minutes
+	 * @param depTime Departure flight time in epoch minutes
+	 * @return Departure Time
+	 */
+	public long getDepartureEpochMinutes(long depFlight, int depTime) {
+		return depFlight + depTime;
 	}
 
 }

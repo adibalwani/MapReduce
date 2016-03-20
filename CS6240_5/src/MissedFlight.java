@@ -183,9 +183,8 @@ public class MissedFlight extends Configured implements Tool {
 						row[16].isEmpty() || row[25].isEmpty() || row[18].isEmpty() || row[27].isEmpty()) {
 					return false;
 				}
-				
 				// For flights that are not cancelled
-				int cancelled = (int) Float.parseFloat(row[47]);
+				/*int cancelled = (int) Float.parseFloat(row[47]);
 				if (cancelled != 1) {
 					int arrTime = timeToMinute(row[41]);
 					int depTime = timeToMinute(row[30]);
@@ -208,7 +207,7 @@ public class MissedFlight extends Configured implements Tool {
 					if (arrDelayMinutes >= 15 && ((int) Float.parseFloat(row[44])) != 1) {
 						return false;
 					}
-				}
+				}*/
 				
 			} catch (NumberFormatException exception) {
 				
@@ -302,8 +301,8 @@ public class MissedFlight extends Configured implements Tool {
 		public void map(Object key, Text value, Context context) 
 			throws IOException, InterruptedException {
 			
-			String[] row = parse(value.toString(), 110);
-			if (row != null && sanityTest(row) && !isCancelled(row)) {
+			String[] row = parse(value.toString(), 111);
+			if (row != null && sanityTest(row)) {
 				String carrierCode = row[8];
 				String year = row[0];
 				int timeZone = getTimeZone(row);

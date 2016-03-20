@@ -3,7 +3,7 @@
 
 ######################### Globals ##############################
 
-BUCKET_NAME = adibpurimane
+BUCKET_NAME = adibpurimane1
 INPUT_BUCKET_NAME = mrclassvitek
 
 ######################### Compile ##############################

@@ -1,34 +1,17 @@
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 
 import org.apache.hadoop.mapreduce.Reducer;
-import java.util.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
 
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
@@ -37,6 +20,11 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 
+/**
+ * Reducer class to find possible connections 
+ * 
+ * @author Adib Alwani, Rachit Puri
+ */
 public class ConnectionReducer extends Reducer<Text, FlightDetail, Text, Text> {
 
 	/**
@@ -47,7 +35,7 @@ public class ConnectionReducer extends Reducer<Text, FlightDetail, Text, Text> {
 	 * @return true iff they are connections. False, otherwise
 	 */
 	private boolean isConnection(long CRSArrEpochTime, long CRSDepEpochTime) {
-		if (CRSDepEpochTime >= CRSArrEpochTime + 30 && CRSDepEpochTime <= CRSArrEpochTime + 360) {
+		if (CRSDepEpochTime >= CRSArrEpochTime + 30 && CRSDepEpochTime <= CRSArrEpochTime + 60) {
 			return true;
 		}
 		return false;
@@ -138,8 +126,39 @@ public class ConnectionReducer extends Reducer<Text, FlightDetail, Text, Text> {
 		return set;
 	}
 	
+	/**
+	 * Get the duration of the flight
+	 * 
+	 * @param CRSArrTime The scheduled arrival time
+	 * @param CRSDepTime The scheduled departure time
+	 * @return Duration in minutes
+	 */
 	private long getFlightDuration(long CRSArrTime, long CRSDepTime) {
-		return (CRSArrTime - CRSDepTime)/(long) (60 * 1000);
+		return CRSArrTime - CRSDepTime;
+	}
+	
+	/**
+	 * Predict whether the flight will be delayed or not
+	 * 
+	 * @param classifier Classifier to classify instance
+	 * @param set Instance Set
+	 * @param flightDetail Instance of flight details
+	 * @return true iff flight is delayed. False, otherwise
+	 */
+	private boolean isDelayed(Classifier classifier, Instances set, FlightDetail flightDetail) {
+		Instance arrInstance = getInstance(flightDetail, set);
+		arrInstance.setDataset(set);
+		try {
+			double[] fDistribution = classifier.distributionForInstance(arrInstance);
+			if (fDistribution[0] < fDistribution[1]) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		return false;
 	}
 	
 	@Override
@@ -150,7 +169,7 @@ public class ConnectionReducer extends Reducer<Text, FlightDetail, Text, Text> {
 		String carrierCode = keys[0];
 		String month = keys[1];
 		String year = keys[2];
-		//String hopAirport = keys[3];
+		String airportId = keys[3];
 		String folderName = month + "_" + year;
 		
 		List<FlightDetail> arrList = new ArrayList<FlightDetail>();
@@ -159,85 +178,79 @@ public class ConnectionReducer extends Reducer<Text, FlightDetail, Text, Text> {
 		Instances set = initSet();
 		
 		try {
-			classifier = getClassifier(key.toString());
+			classifier = getClassifier(month);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}
-
-		// Fill List
-		/*for (FlightDetail flightDetail : values) {
-			
-		}*/
 		
+		// Create folder with carrier code as file name
 		FileSystem fileSystem = FileSystem.get(URI.create(folderName),
 				new Configuration());
-		BufferedWriter br = new BufferedWriter(new OutputStreamWriter(fileSystem.create(new Path(folderName + "/" + carrierCode))));
+		BufferedWriter writer = new BufferedWriter(
+				new OutputStreamWriter(
+						fileSystem.create(new Path(folderName + "/" + carrierCode + "_" + airportId))
+				)
+		);
 		
+		// Add in list
 		for (FlightDetail flight : values) {
-			if (flight.getArrival().get()) {
-				arrList.add(flight);
+			FlightDetail flightDetail = new FlightDetail().copy(flight);
+			
+			if (flight.isArrival().get()) {
+				arrList.add(flightDetail);
 			} else {
-				depList.add(flight);
+				depList.add(flightDetail);
 			}
 		}
 		
 		// Find Connections
 		for (FlightDetail arr : arrList) {
-			long CRSArrTime = arr.getCRSArrTime().get();
 			String origin = arr.getOrigin().toString();
 			int arrFlightNumber = arr.getFlightNumber().get();
-			long hop1ArrEpoch = arr.getCrsArrTimeEpoch().get();
-			long hop1DepEpoch = arr.getCrsDepTimeEpoch().get();
+			long hop1ArrEpoch = arr.getCRSArrTimeEpoch().get();
+			long hop1DepEpoch = arr.getCRSDepTimeEpoch().get();
 			long hop1Duration = getFlightDuration(hop1ArrEpoch, hop1DepEpoch);
-			boolean arrDelay = false;
-			
-			Instance arrInstance = getInstance(arr, set);
-			arrInstance.setDataset(set);
-			try {
-				double[] fDistribution = classifier.distributionForInstance(arrInstance);
-				if (fDistribution[0] < fDistribution[1]) {
-					arrDelay = true;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			boolean arrDelay = isDelayed(classifier, set, arr);
 			
 			for (FlightDetail dep : depList) {
-				long CRSDepTime = dep.getCRSDepTime().get();
-				if (isConnection(CRSArrTime, CRSDepTime)) {
-					
-					Instance depInstance = getInstance(dep, set);
-					depInstance.setDataset(set);
-					try {
-						double[] fDistribution = classifier.distributionForInstance(depInstance);
-						if ((fDistribution[0] < fDistribution[1]) || arrDelay) {
-							// missed connection
-							context.write(new Text(year + "," + month + "," + dep.getDayOfMonth().get() + "," +arr.getOrigin().toString() + 
-									"," +dep.getArrival().toString() + "," +arr.getFlightNumber().get() + "," +dep.getFlightNumber().get()), new Text(""));
-							continue;
-						} 
-					} catch (Exception e) {
-						e.printStackTrace();
+				long hop2DepEpoch = dep.getCRSDepTimeEpoch().get();
+				
+				if (isConnection(hop1ArrEpoch, hop2DepEpoch)) {
+					if (arrDelay) {
+						StringBuilder builder = new StringBuilder();
+						builder.append(year);
+						builder.append(',');
+						builder.append(month);
+						builder.append(',');
+						builder.append(arr.getDayOfMonth().get());
+						builder.append(',');
+						builder.append(arr.getOrigin().toString());
+						builder.append(',');
+						builder.append(dep.getDestination().toString());
+						builder.append(',');
+						builder.append(arr.getFlightNumber().get());
+						builder.append(',');
+						builder.append(dep.getFlightNumber().get());
+						
+						// Missed Connection
+						context.write(new Text(builder.toString()), new Text(""));
+						continue;
 					}
+					
 					String dest = dep.getDestination().toString();
 					int destFlightNumber = dep.getFlightNumber().get();
-					long hop2ArrEpoch = dep.getCrsArrTimeEpoch().get();
-					long hop2DepEpoch = dep.getCrsDepTimeEpoch().get();
+					long hop2ArrEpoch = dep.getCRSArrTimeEpoch().get();
 					long hop2Duration = getFlightDuration(hop2ArrEpoch, hop2DepEpoch);
 					long waitingTime = getFlightDuration(hop2DepEpoch, hop1ArrEpoch);
 					long totalDuration = hop1Duration + hop2Duration + waitingTime;
-					br.write(origin + "," +dest +"," +arrFlightNumber +","+destFlightNumber+ "," +totalDuration);
-					br.flush();
+					writer.write(origin + "," + dest + "," + arr.getDayOfMonth().get() + ":" 
+							+ arrFlightNumber + "," + destFlightNumber + "," + totalDuration);
+					writer.newLine();
 				}
 			}
 		}
-		br.close();
+		
+		writer.close();
 	}
 }
-
-
-
-
-
-

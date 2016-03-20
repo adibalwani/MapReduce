@@ -36,8 +36,14 @@ public class Routing extends Configured implements Tool {
 		return job.waitForCompletion(true);
 	}
 	
-	// request file, input file
-	private boolean PossibleConnections(String[] args) throws Exception {
+	/**
+	 * Run MapReduce job to get all possible connections of each carrier
+	 * 
+	 * @param args Command line args
+	 * @return report
+	 * @throws Exception
+	 */
+	private boolean buildConnections(String[] args) throws Exception {
 		Job job = Job.getInstance(getConf());
 		job.setJar("job.jar");
 		job.setMapperClass(ConnectionMapper.class);
@@ -51,9 +57,30 @@ public class Routing extends Configured implements Tool {
 		return job.waitForCompletion(true);
 	}
 	
+	/**
+	 * Run MapReduce job to get all possible connections for requests
+	 * 
+	 * @param args Command line args
+	 * @return report
+	 * @throws Exception
+	 */
+	private boolean requestConnections(String[] args) throws Exception {
+		Job job = Job.getInstance(getConf());
+		job.setJar("job.jar");
+		job.setMapperClass(TestMapper.class);
+		job.setReducerClass(TestReducer.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(Text.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+		FileInputFormat.addInputPath(job, new Path(args[4]));
+		FileOutputFormat.setOutputPath(job, new Path(args[5]));
+		return job.waitForCompletion(true);
+	}
+	
 	@Override
 	public int run(String[] args) throws Exception {
-		return buildModel(args) /*&& PossibleConnections(args)*/ ? 0 : 1;
+		return buildModel(args) && buildConnections(args) && requestConnections(args) ? 0 : 1;
 	}
 
 	public static void main(String[] args) {

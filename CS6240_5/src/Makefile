@@ -52,7 +52,7 @@ run: clean pseudo
 pseudo: setup_hdfs compile run_pseudo filter hstop
 
 run_pseudo:
-	hadoop MissedFlight /user/adib/input/all output
+	hadoop MissedFlight /user/adib/all output
 	hadoop fs -get output
 	cat output/part* > finaloutput
 

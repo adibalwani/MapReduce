@@ -1,5 +1,5 @@
 # Author : Rachit Puri
-f1 = open('missed_flight', 'r')
+f1 = open('missed_final', 'r')
 f2 = open('04missed.csv', 'r')
 
 correct = 0
@@ -39,4 +39,4 @@ for line in f1:
 #print correct
 #print incorrect
 accuracy = (correct) / (correct + incorrect) * 100
-print ("accuracy is " +accuracy)
+print ("accuracy is " + accuracy)
