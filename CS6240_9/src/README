@@ -1,0 +1,36 @@
+Prerequisites to run on local cluster:
+
+1. export HADOOP_CLASSPATH=.:`hadoop classpath`
+2. If a tmp directory path is specified in core-site.xml, then please delete that tmp folder.
+If no path is specified(as per instructions), then the script will handle deletions 
+3. export HADOOP_HOME=/usr/local/hadoop
+4. export PATH=${PATH}:${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin
+5. Other basic hadoop setup on local machine (make sure datanode and namenode are running properly)
+6. Input data (i.e. input folder containing a7history a7test a7validate a7request) must be present at current working directory (where make commands are being executed)
+
+Prerequisites to run on EMR (Optional):
+
+1. We are assuming that jobs are being run at your EMR 
+2. In your aws configure make sure your output format is "json". We are using json parser in our script so if aws output is text then there will be a problem.
+Type aws configure on command prompt
+	AccessId : Enter 
+	SecretKey : Enter
+	region : us-west-2
+	output format : json
+3. Keep all folder in your current working directory from where you will call make emr. 
+4. We are pushing input data to your S3 bucket from our script. In case internet connection losses or problem happens please upload 
+   input data to S3://adibpurimane888/input. Output gets generated at s3://adibpurimane888/output
+
+=================================== Run ======================================
+
+make pseudo : It will create a HDFS file system, start hadoop, run your job, get the output in the output_final
+
+make emr : It will run your code on amazon cluster, get the output in the output_final
+
+================================== Sample Output ===================================
+
+The following is the sample output generated in output_final:
+
+2004,4,12,BNA,LGA,1432,164,213
+2004,12,25,TPA,OAK,1642,1245,431
+2004,11,11,MEM,MSY,7552,32,543
