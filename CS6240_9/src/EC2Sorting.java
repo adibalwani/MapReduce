@@ -49,16 +49,16 @@ public class EC2Sorting {
 			String dryBulbTemp = token[8];
 			System.out.println(token[0] + " " + token[1] + " " + token[8]);
 			int dryBTemp = Integer.parseInt(dryBulbTemp);
-			if(dryBTemp < 1 && dryBTemp > 10){
+			if (dryBTemp < 1 && dryBTemp > 10) {
 				socket = new Socket(host.getHostName(), 1 /*mr adib kindly change to your required port*/);
 				oos.writeObject(dryBTemp);
-			} else if(dryBTemp < 11 && dryBTemp > 20){
+			} else if (dryBTemp < 11 && dryBTemp > 20) {
 				socket = new Socket(host.getHostName(), 2 /*mr adib kindly change to your required port*/);
 				oos.writeObject(dryBTemp);
-			} else if(dryBTemp < 21 && dryBTemp > 30){
+			} else if (dryBTemp < 21 && dryBTemp > 30) {
 				socket = new Socket(host.getHostName(), 3 /*mr adib kindly change to your required port*/);
 				oos.writeObject(dryBTemp);
-			} else if(dryBTemp < 31 && dryBTemp > 40){
+			} else if (dryBTemp < 31 && dryBTemp > 40) {
 				socket = new Socket(host.getHostName(), 4 /*mr adib kindly change to your required port*/);
 				oos.writeObject(dryBTemp);
 			} 		
