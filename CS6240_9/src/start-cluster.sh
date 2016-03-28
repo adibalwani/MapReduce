@@ -1,6 +1,7 @@
 #!bin/bash
-# Author: Adib Alwani
-
+# Author: Adib Alwani, Rachit Puri, Rushikesh Badami, Bhavin Vora
+var=1
+instance=$0
 # Args check
 if [ $# -ne 1 ]; then
 	echo usage: $0 "<Number of Instances>"
@@ -15,3 +16,20 @@ cat instances | jq -r ".Instances[].InstanceId" > instance-ids
 
 # Fetch DNS and store
 aws ec2 describe-instances --filters "Name=instance-type,Values=t2.micro" | jq -r ".Reservations[].Instances[].PublicDnsName" | sed '/^$/d' > instance-dns
+
+while read id
+do
+	while [ $var -eq 1 ]
+	do
+		if [ $(aws ec2 describe-instance-status --instance-id $id | jq -r ".InstanceStatuses[]" | wc -l) -gt $var ]
+		then
+			if [ $(aws ec2 describe-instance-status --instance-id $id | jq -r ".InstanceStatuses[].InstanceState.Name") = "running" ]
+			then
+				echo "instance is running"
+				break
+			fi
+		else
+			echo "waiting for instance to start"
+		fi
+	done
+done < instance-ids
