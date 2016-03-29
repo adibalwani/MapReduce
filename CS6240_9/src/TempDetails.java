@@ -45,4 +45,18 @@ public class TempDetails implements Comparable<TempDetails> {
 	public float getTemperature() {
 		return temperature;
 	}
+	public String toString()
+	{
+		StringBuilder sb=new StringBuilder();
+		sb.append(wBan)
+		.append(",")
+		.append(date)
+		.append(",")
+		.append(time)
+		.append(",")
+		.append(temperature);
+
+		return sb.toString();
+		
+	}
 }

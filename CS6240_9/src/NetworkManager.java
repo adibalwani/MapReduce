@@ -110,10 +110,30 @@ public class NetworkManager {
 			// TODO: Implement TempDetails toString()
 			// TODO: For each List value send the data
 			// TODO: Combine such value into one message and send data
-			networkManager.new Client(conn, tempDetails.toString());
+		//	ArrayList<String>tempToString= convertListToString(tempDetails);
+			for(TempDetails temp:tempDetails)
+			{
+			Client sendToServer=networkManager.new Client(conn,temp.toString());
+			sendToServer.start();
+			}
 		}
 	}
 	
+	/**
+	 * Convert the object list of tempDetails to string
+	 */
+	/*public ArrayList<String> convertListToString(List<TempDetails> tempDetails)
+	{
+		ArrayList<String>listToString=new ArrayList<>();
+		for (TempDetails temp:tempDetails)
+		{
+			listToString.add(temp.getwBan()+","+temp.getDate()+","+temp.getTime()+","+temp.getTemperature());
+		}
+			
+		
+		return listToString;
+		
+	}*/
 	/**
 	 * Close all established connections - Server, Client
 	 */
