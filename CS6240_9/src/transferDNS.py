@@ -14,7 +14,7 @@ with open('instance-dns', 'r+') as fm:
 		src = server + ":~/input"
 		path.append(src)
 		lines += 1
-
+f=0
 for j in range(0,lines):
 	with open('instance-dns', 'r+') as fd:
 		f1 = open('del-instance', 'w+')
@@ -25,6 +25,7 @@ for j in range(0,lines):
 				f1.write(line[:-1] + "\n")	
 		var += 1
 		f1.close()
-		call(["scp", "-i", "ec2-key.pem", "del-instance", path[j]])
+		call(["scp", "-i", "ec2-key.pem", "del-instance","listfiles"+str(f),path[j]])
+		f=f+1
 		time.sleep(2)
 	fd.close()

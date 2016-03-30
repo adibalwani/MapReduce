@@ -33,3 +33,12 @@ do
 		fi
 	done
 done < instance-ids
+# sleep 4
+# aws s3 ls  s3://cs6240sp16/climate/ > listfiles
+# echo "$(tail -n +2 listfiles)" > listfiles
+# nofiles=$(wc -l listfiles|cut -d ' ' -f1)
+# python chunk.py $nofiles $instances
+# sleep 3
+# python transferDNS.py
+
+
