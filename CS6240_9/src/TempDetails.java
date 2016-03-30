@@ -29,6 +29,35 @@ public class TempDetails implements Comparable<TempDetails> {
 			return 0;
 		}
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(wBan);
+		sb.append(',');
+		sb.append(date);
+		sb.append(',');
+		sb.append(time);
+		sb.append(',');
+		sb.append(temperature);
+
+		return sb.toString();
+	}
+	
+	/**
+	 * Get an instance of TempDetails from the given line
+	 * 
+	 * @param line Line information
+	 * @return TempDetails instance
+	 */
+	public static TempDetails fromString(String line) {
+		String[] data = line.split(",");
+		int wBan = Integer.parseInt(data[0]);
+		String date = data[1];
+		int time = Integer.parseInt(data[2]);
+		float temperature = Float.parseFloat(data[3]);
+		return new TempDetails(wBan, date, time, temperature);
+	}
 
 	public int getwBan() {
 		return wBan;
@@ -44,19 +73,5 @@ public class TempDetails implements Comparable<TempDetails> {
 
 	public float getTemperature() {
 		return temperature;
-	}
-	public String toString()
-	{
-		StringBuilder sb=new StringBuilder();
-		sb.append(wBan)
-		.append(",")
-		.append(date)
-		.append(",")
-		.append(time)
-		.append(",")
-		.append(temperature);
-
-		return sb.toString();
-		
 	}
 }
