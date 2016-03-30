@@ -2,9 +2,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.text.MaskFormatter;
 
 
 /**
@@ -18,9 +21,11 @@ public class NetworkManager {
 	private static final String DNS_FILE_NAME = "instance-dns";
 	private static final int PORT_START = 10000;
 	
-	private List<DNSPortPair> dnsList;
-	private DNSPortPair hostDNSPortPair;
+	private List<HostPortPair> hostList;
+	private HostPortPair hostPortPair;
 	private NetworkManager networkManager;
+	private List<List<TempDetails>> tempDetailsMasterList;
+	private List<Partition> partitionList;
 	
 	/*
 	 * Map from Server DNS to opened socket for reuse
@@ -41,11 +46,12 @@ public class NetworkManager {
 	 */
 	public static NetworkManager newInstance() {
 		NetworkManager networkManager = new NetworkManager();
-		networkManager.dnsList = new ArrayList<DNSPortPair>();
+		networkManager.hostList = new ArrayList<HostPortPair>();
 		networkManager.readDNSFile();
 		networkManager.networkManager = networkManager;
 		networkManager.clientSocketMap = new HashMap<String, TextSocket>();
 		networkManager.serverSocketMap = new HashMap<String, TextSocket.Server>();
+		networkManager.partitionList = new ArrayList<Partition>(); 
 		return networkManager;
 	}
 	
@@ -53,7 +59,8 @@ public class NetworkManager {
 	 * Spawn Server thread to read incoming client connections
 	 */
 	public void spawnServers() {
-		for (DNSPortPair client : dnsList) {
+		tempDetailsMasterList = new ArrayList<List<TempDetails>>();
+		for (HostPortPair client : hostList) {
 			// Don't spawn for self
 			if (client.isHost()) {
 				continue;
@@ -64,28 +71,34 @@ public class NetworkManager {
 				TextSocket.Server svr = new TextSocket.Server(
 						getServerPort(client)
 				);
-				serverSocketMap.put(client.getDns(), svr);
-				networkManager.new Server(svr).start();
+				serverSocketMap.put(client.getHostName(), svr);
+				List<TempDetails> listDetails = new ArrayList<TempDetails>(); 
+				tempDetailsMasterList.add(listDetails);
+				networkManager.new Server(svr, listDetails).start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+		
+		// Add itself
+		List<TempDetails> listDetails = new ArrayList<TempDetails>(); 
+		tempDetailsMasterList.add(listDetails);
 	}
 	
 	/**
 	 * Establish connections to all servers
 	 */
 	public void spawnClients() {
-		for (DNSPortPair server : dnsList) {
+		for (HostPortPair server : hostList) {
 			// Don't establish connection to self
 			if (server.isHost()) {
 				continue;
 			}
 			
 			try {
-				String serverDNS = server.getDns();
-				TextSocket conn = new TextSocket(serverDNS, getClientPort(server));				
-				clientSocketMap.put(serverDNS, conn);
+				String serverHostName = server.getHostName();
+				TextSocket conn = new TextSocket(serverHostName, getClientPort(server));				
+				clientSocketMap.put(serverHostName, conn);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -93,47 +106,147 @@ public class NetworkManager {
 	}
 	
 	/**
-	 * Broadcast sample data to all servers
+	 * Sort the data on the cluster
 	 * 
-	 * @param tempDetails Sample data
+	 * @param tempDetails Input data
 	 */
-	public void broadcastSamples(List<TempDetails> tempDetails) {
-		for (DNSPortPair server : dnsList) {
+	public void sortData(List<TempDetails> tempDetails) {
+		Barrier barrier = new Barrier();
+		
+		for (TempDetails tempDetail : tempDetails) {
+			// Send data to appropriate servers
+			String hostName = getHostName(tempDetail.getTemperature());
+			
+			// Don't send to self
+			if ()
+			
+			TextSocket conn = clientSocketMap.get(hostName);
+			networkManager.new Client(conn, tempDetail.toString()).start();
+		}
+		
+		for (int i = 0; i < len; i++) {
+			HostPortPair server = hostList.get(i);
+			
 			// Don't broadcast to self
 			if (server.isHost()) {
 				continue;
 			}
 			
-			// Broadcast samples to servers
-			TextSocket conn = clientSocketMap.get(server.getDns());
-			
-			// TODO: Implement TempDetails toString()
-			// TODO: For each List value send the data
-			// TODO: Combine such value into one message and send data
-		//	ArrayList<String>tempToString= convertListToString(tempDetails);
-			for(TempDetails temp:tempDetails)
-			{
-			Client sendToServer=networkManager.new Client(conn,temp.toString());
-			sendToServer.start();
+			// Send data to appropriate servers
+			TextSocket conn = clientSocketMap.get(server.getHostName());
+			for (TempDetails tempDetail : tempDetails) {
+				networkManager.new Client(conn, tempDetail.toString()).start();
 			}
+		}
+		
+		for (HostPortPair server : hostList) {
+			new Barrier.CompleteThread(server.getHostName()).start();
+		}
+		
+		// Wait for barrier to lift
+		barrier.barrier(len);
+	}
+	
+	/**
+	 * Broadcast sample data to all servers and fill the partitioner
+	 * 
+	 * @param tempDetails Sample data
+	 */
+	public void fillPartition(List<TempDetails> tempDetails) {
+		Barrier barrier = new Barrier();
+		int len = hostList.size();
+		
+		for (int i = 0; i < len; i++) {
+			HostPortPair server = hostList.get(i);
+			
+			// Don't broadcast to self
+			// Add to list
+			if (server.isHost()) {
+				List<TempDetails> listDetails = tempDetailsMasterList.get(
+						tempDetailsMasterList.size() - 1
+				);
+				for (TempDetails tempDetail : tempDetails) {
+					listDetails.add(tempDetail);
+				}
+				continue;
+			}
+			
+			// Broadcast samples to servers
+			TextSocket conn = clientSocketMap.get(server.getHostName());
+			for (TempDetails tempDetail : tempDetails) {
+				networkManager.new Client(conn, tempDetail.toString()).start();
+			}
+			
+			// Broadcast barrier complete
+			new Barrier.CompleteThread(server.getHostName()).start(); 
+		}
+		
+		// Wait for barrier to lift
+		barrier.barrier(len);
+		
+		// Fill the pivots
+		List<TempDetails> samples = mergeList();
+		Collections.sort(samples);
+		getPivots(samples);
+		clearList();
+	}
+	
+	/**
+	 * Clear all the data Lists
+	 */
+	private void clearList() {
+		for (List<TempDetails> tempDetails : tempDetailsMasterList) {
+			tempDetails.clear();
 		}
 	}
 	
 	/**
-	 * Convert the object list of tempDetails to string
+	 * Fill the partitions list
+	 * 
+	 * @param samples Samples to partition on
 	 */
-	/*public ArrayList<String> convertListToString(List<TempDetails> tempDetails)
-	{
-		ArrayList<String>listToString=new ArrayList<>();
-		for (TempDetails temp:tempDetails)
-		{
-			listToString.add(temp.getwBan()+","+temp.getDate()+","+temp.getTime()+","+temp.getTemperature());
+	private void getPivots(List<TempDetails> samples) {
+		int len = hostList.size();
+		int index = samples.size() / len;
+		
+		for (int i = 0; i < len - 1; i++) {
+			TempDetails tempDetails = samples.get(index);
+			float temp = tempDetails.getTemperature();
+			String hostName = hostList.get(i).getHostName();
+			partitionList.add(new Partition(temp, hostName));
+			index += index;
 		}
-			
+	}
+	
+	/**
+	 * Find the appropriate host for the given temperature
+	 * 
+	 * @param temperature The temperature to search for
+	 * @return Host Name that will handle the partition
+	 */
+	private String getHostName(float temperature) {
+		for (Partition partition : partitionList) {
+			if (temperature <= partition.getMaxTemp()) {
+				return partition.getHostName();
+			}
+		}
 		
-		return listToString;
-		
-	}*/
+		return hostList.get(hostList.size() - 1).getHostName();
+	}
+	
+	/**
+	 * Merge master list into one
+	 * 
+	 * @return samples of the data
+	 */
+	private List<TempDetails> mergeList() {
+		List<TempDetails> samples = new ArrayList<TempDetails>();
+		for (List<TempDetails> tempDetail : tempDetailsMasterList) {
+			samples.addAll(tempDetail);
+		}
+		return samples;
+	}
+	
 	/**
 	 * Close all established connections - Server, Client
 	 */
@@ -175,10 +288,10 @@ public class NetworkManager {
 				
 				if (line.length == 2) {
 					host = true;
-					hostDNSPortPair = new DNSPortPair(dns, instanceNumber, host);
+					hostPortPair = new HostPortPair(dns, instanceNumber, host);
 				}
 				
-				dnsList.add(new DNSPortPair(dns, instanceNumber, host));
+				hostList.add(new HostPortPair(dns, instanceNumber, host));
 				instanceNumber++;
 			}
 		} catch (IOException exception) {
@@ -192,10 +305,10 @@ public class NetworkManager {
 	 * @param receiver Receiver DNSPort pair
 	 * @return Port number
 	 */
-	private int getServerPort(DNSPortPair receiver) {
-		int len = dnsList.size();
+	private int getServerPort(HostPortPair receiver) {
+		int len = hostList.size();
 		return (receiver.getInstanceNumber() - 1) * 2 + 
-				(hostDNSPortPair.getInstanceNumber() - 1) +
+				(hostPortPair.getInstanceNumber() - 1) +
 				(len * len - len) + PORT_START;
 	}
 	
@@ -205,8 +318,8 @@ public class NetworkManager {
 	 * @param receiver Receiver DNSPort pair
 	 * @return Port number
 	 */
-	private int getClientPort(DNSPortPair receiver) {
-		return (hostDNSPortPair.getInstanceNumber() - 1) * 2 + 
+	private int getClientPort(HostPortPair receiver) {
+		return (hostPortPair.getInstanceNumber() - 1) * 2 + 
 				(receiver.getInstanceNumber() - 1) + PORT_START;
 	}
 	
@@ -243,23 +356,54 @@ public class NetworkManager {
 	class Server extends Thread {
 		
 		final TextSocket.Server svr;
+		final List<TempDetails> listDetails;
 		
-		public Server(TextSocket.Server svr) {
+		public Server(TextSocket.Server svr, List<TempDetails> listDetails) {
 			this.svr = svr;
+			this.listDetails = listDetails;
 		}
 		
 		@Override
 		public void run() {
 			try {
 				TextSocket conn;
-				// Wait for incoming data from this client
 		        while (null != (conn = svr.accept())) {
-		            ServerThread tt = new ServerThread(conn);
+		            ServerThread tt = new ServerThread(conn, new ServerThread.DismissListener() {
+						@Override
+						public void onDismiss(TempDetails tempDetails) {
+							synchronized (listDetails) {
+								listDetails.add(tempDetails);
+							}
+						}
+					});
 		            tt.start();
 		        }
 			} catch (IOException exception) {
 				exception.printStackTrace();
 			}
+		}
+	}
+	
+	/**
+	 * Class representing temperature and HostName
+	 * 
+	 * @author Adib Alwani, Bhavin Vora 
+	 */
+	static class Partition {
+		private final float maxTemp;
+		private final String hostName;
+		
+		public Partition(float maxTemp, String hostName) {
+			this.maxTemp = maxTemp;
+			this.hostName = hostName;
+		}
+
+		public float getMaxTemp() {
+			return maxTemp;
+		}
+
+		public String getHostName() {
+			return hostName;
 		}
 	}
 
@@ -268,19 +412,19 @@ public class NetworkManager {
 	 * 
 	 * @author Adib Alwani, Bhavin Vora
 	 */
-	static class DNSPortPair {
-		private final String dns;
+	static class HostPortPair {
+		private final String hostName;
 		private final int instanceNumber;
 		private final boolean host;
 		
-		public DNSPortPair(String dns, int instanceNumber, boolean host) {
-			this.dns = dns;
+		public HostPortPair(String dns, int instanceNumber, boolean host) {
+			this.hostName = dns;
 			this.instanceNumber = instanceNumber;
 			this.host = host;
 		}
 
-		public String getDns() {
-			return dns;
+		public String getHostName() {
+			return hostName;
 		}
 
 		public int getInstanceNumber() {

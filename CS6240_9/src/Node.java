@@ -18,7 +18,8 @@ public class Node {
 		Sampling sampling = new Sampling();
 		List<TempDetails> samples = sampling.sampleData(tempDetails);
 		networkManager.spawnClients();
-		networkManager.broadcastSamples(samples);
+		networkManager.fillPartition(samples);
+		
 		networkManager.closeConnections();
 	}
 }

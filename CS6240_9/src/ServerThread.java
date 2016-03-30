@@ -1,45 +1,46 @@
 import java.io.IOException;
 
+/**
+ * Handle client request
+ * 
+ * @author Adib Alwani, Bhavin Vora
+ */
 public class ServerThread extends Thread {
     final TextSocket conn;
+    final DismissListener listener;
+    
+    public interface DismissListener {
+    	/**
+    	 * Method to call after finishing task
+    	 *  
+    	 * @param tempDetails instance of TempDetails
+    	 */
+    	public void onDismiss(TempDetails tempDetails);
+    }
 
-    public ServerThread(TextSocket conn) {
+    public ServerThread(TextSocket conn, DismissListener listener) {
         this.conn = conn;
+        this.listener = listener;
     }
 
     @Override 
     public void run() {
         try {
             handleConn();
-        }
-        catch (IOException ee) {
-            System.err.println("IO Error: " + ee.toString());
+        } catch (IOException exception) {
+        	exception.printStackTrace();
         }
     }
 
+    /**
+     * Handle client request
+     * 
+     * @throws IOException
+     */
     void handleConn() throws IOException {
-        String req = conn.getln();
-        while (!conn.getln().equals("")) {
-            // skip it.
-        }
-        
-        String[] parts = req.split(" ");
-        if (!parts[0].equals("GET")) {
-            throw new IOException("Expected GET");
-        }
-        if (!parts[2].equals("HTTP/1.1")) {
-            throw new IOException("Expected HTTP/1.1");
-        }
-
-        String path = parts[1];
-
-        conn.putln("HTTP/1.1 200 OK");
-        conn.putln("Content-type: text/plain");
-        conn.putln("");
-        conn.putln("Hello, path = " + path);
-        conn.close();
-
-        System.out.println("Handled GET " + path + " in thread " + Thread.currentThread().getId());
+        String line = conn.getln();
+        TempDetails tempDetails = TempDetails.fromString(line);
+        listener.onDismiss(tempDetails);
     }
 }
 
