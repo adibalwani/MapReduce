@@ -1,8 +1,17 @@
 #!bin/bash
 # Author: Adib Alwani
 
-# SCP data into EC2 Instances
-while read dns
-do
-	scp -i ec2-key.pem instance-dns ec2-user@$dns:~
-done < instance-dns
+# Args Check
+if [ $# -ne 3 ]; then
+	echo usage: $0 "<Program Name> <Input Bucket> <Output Bucket>"
+	exit 1
+fi
+
+# Compile
+make compile
+python chunk.py
+python transferDNS.py
+sh copy.sh
+sh startJob.sh
+sh outputS3.sh
+python filemerge.py

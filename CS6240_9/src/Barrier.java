@@ -9,15 +9,13 @@ import java.net.Socket;
  */
 public class Barrier {
 
-	public static final int BASE_PORT = 9999;
-
 	private static Object lock;
 	private static int barrierCount;
 
-	public Barrier() {
+	public Barrier(int port) {
 		lock = new Object();
 		barrierCount = 0;
-		new ListenThread(BASE_PORT).start();
+		new ListenThread(port).start();
 	}
 
 	/**
@@ -56,19 +54,29 @@ public class Barrier {
 	 */
 	static class CompleteThread extends Thread {
 		final String hostName;
+		final int port;
 
-		public CompleteThread(String hostName) {
+		public CompleteThread(String hostName, int port) {
 			this.hostName = hostName;
+			this.port = port;
 		}
 
 		@Override
 		public void run() {
-			try {
-				Socket ss = new Socket(hostName, Barrier.BASE_PORT);
-				ss.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}			
+			while (true) {
+				try {
+					Socket ss = new Socket(hostName, port);
+					ss.close();
+					break;
+				} catch (IOException e) {
+					System.out.println("Barrier has not yet been created for " + hostName);
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 

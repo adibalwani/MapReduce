@@ -1,4 +1,4 @@
-BUCKET_NAME="mapred007"
+BUCKET_NAME="mapred008"
 #OUTPUT="output12"
 
 aws s3 rb s3://$BUCKET_NAME --force
@@ -11,12 +11,12 @@ while read id
 do
 	echo $id
 	while [ $var != "0" ]; do
-			ssh -i ec2-key.pem -o StrictHostKeyChecking=no ec2-user@$id "aws s3 cp ./output/* s3://mapred007/" &
+			ssh -i ec2-key.pem -o StrictHostKeyChecking=no ec2-user@$id "aws s3 cp ./output/* s3://mapred008/" &
 			var=$?
 			echo $var
 	done
 	var=1
-done < instance-dns
+done < original-dns
 wait
 
 rm -rf output

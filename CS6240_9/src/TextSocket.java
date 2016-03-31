@@ -1,11 +1,14 @@
-import java.net.*;
-import java.io.*;
-import java.util.Iterator;
-
-import org.apache.commons.io.LineIterator;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 // Author: Nat Tuck
-public class TextSocket implements Iterable<String> {
+public class TextSocket {
     final Socket sock;
     final BufferedReader rdr;
     final BufferedWriter wtr;
@@ -38,10 +41,6 @@ public class TextSocket implements Iterable<String> {
         else {
             return line.trim();
         }
-    }
-
-    public Iterator<String> iterator() {
-        return new LineIterator(rdr); 
     }
 
     public void putln(String line) throws IOException {
