@@ -23,7 +23,7 @@ getS3data:
 ########################## Clean ################################
 
 clean:
-	rm -rf original-dns instance-ids instances *.class *.jar s3data*
+	rm -rf *.class *.jar s3data*
 
 clean_submission:
 	rm -rf ec2-key.pem

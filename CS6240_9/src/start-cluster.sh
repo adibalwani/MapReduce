@@ -1,4 +1,3 @@
-#!bin/bash
 # Author: Adib Alwani, Rachit Puri, Rushikesh Badami, Bhavin Vora
 var=1
 instance=$0

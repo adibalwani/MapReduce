@@ -1,4 +1,3 @@
-#!bin/bash
 # Author: Adib Alwani
 
 # Args Check
@@ -9,7 +8,7 @@ fi
 
 # Compile
 make compile
-python chunk.py
+python chunk.py $2
 python transferDNS.py
 sh copy.sh
 sh startJob.sh

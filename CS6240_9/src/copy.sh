@@ -1,5 +1,5 @@
 #!bin/bash
-#cp ~/.aws/credentials ./
+# Author: Rachit Puri and Rushikesh Badami
 
 var=1
 while read id

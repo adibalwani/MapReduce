@@ -1,14 +1,12 @@
+# Author: Rachit Puri and Rushikesh Badami
 import os
 
 listoffile = []
 for file in os.listdir("output/"):
    	listoffile.append(file)
 
-#print listoffile 
 listoffile.sort(reverse=True)
 f1 = open('final-output','w+')
-#for file in listoffile:
-#	print file
 
 for file in listoffile:
 	print file
