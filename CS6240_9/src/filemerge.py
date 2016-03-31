@@ -1,10 +1,12 @@
 import os
-listoffile=[]
+
+listoffile = []
 for file in os.listdir("output/"):
    	listoffile.append(file)
+
 #print listoffile 
-listoffile.sort()
-f1=open('final-output','w+')
+listoffile.sort(reverse=True)
+f1 = open('final-output','w+')
 #for file in listoffile:
 #	print file
 
