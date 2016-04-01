@@ -1,6 +1,6 @@
 # Author: Rachit Puri and Rushikesh Badami
 
-BUCKET_NAME="mapred009"
+BUCKET_NAME="mapred010"
 #OUTPUT="output12"
 
 aws s3 rb s3://$BUCKET_NAME --force
@@ -13,7 +13,7 @@ while read id
 do
 	echo $id
 	while [ $var != "0" ]; do
-			ssh -i ec2-key.pem -o StrictHostKeyChecking=no ec2-user@$id "aws s3 cp ./output/* s3://mapred009/" &
+			ssh -i ec2-key.pem -o StrictHostKeyChecking=no ec2-user@$id "aws s3 cp ./output/* s3://mapred010/" &
 			var=$?
 			echo $var
 	done

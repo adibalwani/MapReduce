@@ -180,7 +180,9 @@ public class NetworkManager {
 		// Fill the pivots
 		List<TempDetails> samples = mergeList(tempDetails);
 		Collections.sort(samples);
+		Collections.reverse(samples);
 		getPivots(samples);
+		Printer.printTempDetails(samples, "file");
 		clearList();
 	}
 	
@@ -223,6 +225,7 @@ public class NetworkManager {
 			float temp = tempDetails.getTemperature();
 			String hostName = hostList.get(i).getHostName();
 			partitionList.add(new Partition(temp, hostName));
+			System.out.println("Pivot: "  + temp + " " + hostName);
 			index += index;
 		}
 	}

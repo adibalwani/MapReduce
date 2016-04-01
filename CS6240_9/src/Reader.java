@@ -89,7 +89,7 @@ public class Reader {
 	 * @return Array containing those records, null if couldn't parse
 	 */
 	public String[] parse(String record) {
-		record = record.replaceAll("\"", "").replaceAll(",[\\s]", ";");
+		record = record.replaceAll("\"", "").replaceAll("\\s+", "");
 		return record.split(",");
 	}
 	
@@ -101,7 +101,7 @@ public class Reader {
 	 */
 	@SuppressWarnings("unused")
 	public boolean sanityTest(String[] row) {
-		if (row.length != 20) {
+		if (row.length != 21) {
 			return false;
 		}
 		
