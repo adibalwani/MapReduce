@@ -37,7 +37,7 @@ public class Reader {
 			) {
 				String currentLine;
 				while ((currentLine = bufferedReader.readLine()) != null) {
-					String[] row = parse(currentLine, 20);
+					String[] row = parse(currentLine);
 					if (row != null && sanityTest(row)) {
 						int wBan = (int) Float.parseFloat(row[0]);
 						String date = row[1];
@@ -88,7 +88,7 @@ public class Reader {
 	 * @param record The record to parse 
 	 * @return Array containing those records, null if couldn't parse
 	 */
-	public String[] parse(String record, int column) {
+	public String[] parse(String record) {
 		record = record.replaceAll("\"", "").replaceAll(",[\\s]", ";");
 		return record.split(",");
 	}
