@@ -4,13 +4,9 @@ import sys
 from subprocess import call
 import math
 
-# print 'Number of arguments:', len(sys.argv), 'arguments.'
-# print 'Argument List:', str(sys.argv)
-
 #bucketname = sys.argv[1]
 bucketname = "s3://cs6240sp16/climate"
 instances = 0.0
-nofiles = 0.0
 with open("original-dns", "r") as fd:
 	for line in fd:
 		instances += 1
@@ -19,41 +15,43 @@ print instances
 fd.close()
 
 fs3 = open("s3data", "w+")
-
-f = open("listfiles", "r+")
+fd = open("listfilesFilter", "w+")
+f = open("listfiles", "w+")
 call(["aws", "s3", "ls", bucketname + "/"], stdout=f)
-f.close()
-
-with open('listfiles', 'r+') as fm:
-	for line in fm:
-		filename = line.rsplit(' ', 1)
-		if len(filename[1]) > 3:
-			fs3.write(bucketname +  "/" +filename[1][:-1] + "\n")
-			nofiles += 1
+call(["sort", "-nk3", "listfiles"], stdout=fd)
+call(["awk", "NR>1", "listfilesFilter"], stdout=fs3)
+#f.close()
 fs3.close()
-fm.close()
+fd.close()
 
 listoffiles=[]
 with open('s3data', 'r+') as fm:
 	for line in fm:
-		listoffiles.append(line)
+		words = line.split(" ")
+		listoffiles.append(bucketname + "/" + words[len(words)-1])
+
 f8=open('sorteds3data','w+')	
 j=len(listoffiles)
 i=0
 k=j
-while i<k:
-	if(i==j-1):
-		break
+var = len(listoffiles)
+while i<var:
+	if var%2 == 0:
+		if(i==j):
+			break
+	else:
+		if (i == j-1):
+			f8.write(listoffiles[i])
+			break
+	
 	f8.write(listoffiles[i])
 	f8.write(listoffiles[j-1])
 	i=i+1
 	j=j-1
 f8.close()
 
-
-arg = []
-arg = sys.argv
-split = math.ceil(float(nofiles/instances))
+nofiles = float(len(listoffiles))
+split = int(nofiles/instances)
 print nofiles
 print split
 f1 = open('s3data'+str(1),'w')
@@ -62,9 +60,7 @@ with open('sorteds3data','r+') as fm:
 	i=1
 	k=1
 	for line in fm:
-		splt=[]
-		splt=line.split(" ")
-		f1.write(splt[len(splt)-1])
+		f1.write(line)
 		if(k >= partition and i!=int(instances)):
 			i=i+1
 			partition=split*i
