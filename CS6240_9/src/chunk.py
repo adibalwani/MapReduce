@@ -20,19 +20,35 @@ fd.close()
 
 fs3 = open("s3data", "w+")
 
-#f = open("listfiles", "r+")
-#call(["aws", "s3", "ls", bucketname + "/"], stdout=f)
-#f.close()
+f = open("listfiles", "r+")
+call(["aws", "s3", "ls", bucketname + "/"], stdout=f)
+f.close()
 
 with open('listfiles', 'r+') as fm:
 	for line in fm:
 		filename = line.rsplit(' ', 1)
-		#print filename[1][:-1]
 		if len(filename[1]) > 3:
 			fs3.write(bucketname +  "/" +filename[1][:-1] + "\n")
 			nofiles += 1
 fs3.close()
 fm.close()
+
+listoffiles=[]
+with open('s3data', 'r+') as fm:
+	for line in fm:
+		listoffiles.append(line)
+f8=open('sorteds3data','w+')	
+j=len(listoffiles)
+i=0
+k=j
+while i<k:
+	if(i==j-1):
+		break
+	f8.write(listoffiles[i])
+	f8.write(listoffiles[j-1])
+	i=i+1
+	j=j-1
+f8.close()
 
 
 arg = []
@@ -42,13 +58,13 @@ print nofiles
 print split
 f1 = open('s3data'+str(1),'w')
 partition=split *1
-with open('s3data','r+') as fm:
+with open('sorteds3data','r+') as fm:
 	i=1
 	k=1
 	for line in fm:
 		splt=[]
 		splt=line.split(" ")
-		f1.write (splt[len(splt)-1])
+		f1.write(splt[len(splt)-1])
 		if(k >= partition and i!=int(instances)):
 			i=i+1
 			partition=split*i
