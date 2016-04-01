@@ -20,7 +20,7 @@ fd.close()
 
 fs3 = open("s3data", "w+")
 
-#f = open("listfiles", "r+")
+#f = open("listfiles", "wr+")
 #call(["aws", "s3", "ls", bucketname + "/"], stdout=f)
 #f.close()
 

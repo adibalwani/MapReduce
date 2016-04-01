@@ -21,10 +21,11 @@ public class Server extends Thread {
 		try {
 			TextSocket conn;
 			while (null != (conn = svr.accept())) {
-				String line = conn.getln();
-				if (line != null) {
-					TempDetails tempDetails = TempDetails.fromString(line);
-					listDetails.add(tempDetails);
+				for (String line : conn) {
+					if (line != null) {
+						TempDetails tempDetails = TempDetails.fromString(line);
+						listDetails.add(tempDetails);
+					}
 				}
 			}
 		} catch (IOException exception) {

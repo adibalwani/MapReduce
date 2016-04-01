@@ -31,11 +31,13 @@ public class NetworkManager {
 	 * Map from client to opened server sockets for reuse  
 	 */
 	private Map<String, TextSocket.Server> serverSocketMap;
+	private Map<String, TextSocket> clientSocketMap;
 	
 	public NetworkManager() {
 		hostList = new ArrayList<HostPortPair>();
 		readDNSFile();
 		serverSocketMap = new HashMap<String, TextSocket.Server>();
+		clientSocketMap = new HashMap<String, TextSocket>(); 
 		partitionList = new ArrayList<Partition>();
 	}
 	
@@ -69,7 +71,7 @@ public class NetworkManager {
 	/**
 	 * Establish connections to all servers
 	 */
-	public void spawnClients() {
+	public void waitForServers() {
 		for (HostPortPair server : hostList) {
 			// Don't establish connection to self
 			if (server.isHost()) {
@@ -80,7 +82,8 @@ public class NetworkManager {
 				try {
 					String serverHostName = server.getHostName();
 					TextSocket conn = new TextSocket(serverHostName, getClientPort(server));
-					conn.close();
+					clientSocketMap.put(serverHostName, conn);
+					//conn.close();
 					break;
 				} catch (IOException e) {
 					System.out.println("Waiting for " + server.getHostName() + " to be up");
@@ -115,9 +118,11 @@ public class NetworkManager {
 			
 			try {
 				HostPortPair server = getHostPortPair(hostName);
-				TextSocket conn = new TextSocket(hostName, getClientPort(server));
-				new Client(conn, tempDetail.toString()).run();
-				conn.close();
+				TextSocket conn = clientSocketMap.get(server.getHostName());
+				conn.putln(tempDetail.toString());
+				//TextSocket conn = new TextSocket(hostName, getClientPort(server));
+				//new Client(conn, tempDetail.toString()).run();
+				//conn.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -159,14 +164,15 @@ public class NetworkManager {
 			}
 			
 			// Broadcast samples to servers
-			for (TempDetails tempDetail : tempDetails) {
-				try {
-					TextSocket conn = new TextSocket(server.getHostName(), getClientPort(server));
-					new Client(conn, tempDetail.toString()).run();
-					conn.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+			try {
+				TextSocket conn = clientSocketMap.get(server.getHostName());
+				//TextSocket conn = new TextSocket(server.getHostName(), getClientPort(server));
+				for (TempDetails tempDetail : tempDetails) {
+					conn.putln(tempDetail.toString());
 				}
+				//conn.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			
 			// Broadcast barrier complete

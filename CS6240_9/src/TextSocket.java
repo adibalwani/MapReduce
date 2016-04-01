@@ -6,9 +6,12 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Iterator;
+
+import org.apache.commons.io.LineIterator;
 
 // Author: Nat Tuck
-public class TextSocket {
+public class TextSocket implements Iterable<String> {
     final Socket sock;
     final BufferedReader rdr;
     final BufferedWriter wtr;
@@ -41,6 +44,10 @@ public class TextSocket {
         else {
             return line.trim();
         }
+    }
+    
+    public Iterator<String> iterator() {
+        return new LineIterator(rdr); 
     }
 
     public void putln(String line) throws IOException {
