@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,12 +11,14 @@ public class Server extends Thread {
 
 	final TextSocket.Server svr;
 	final List<TempDetails> listDetails;
+	boolean dataRead;
 
-	public Server(TextSocket.Server svr, List<TempDetails> listDetails) {
+	public Server(TextSocket.Server svr) {
 		this.svr = svr;
-		this.listDetails = listDetails;
+		listDetails = new ArrayList<TempDetails>();
+		dataRead = false;
 	}
-
+	
 	@Override
 	public void run() {
 		try {
@@ -23,13 +26,29 @@ public class Server extends Thread {
 			while (null != (conn = svr.accept())) {
 				for (String line : conn) {
 					if (line != null) {
-						TempDetails tempDetails = TempDetails.fromString(line);
-						listDetails.add(tempDetails);
+						if (line.equals("done")) {
+							dataRead = true;
+						} else {
+							TempDetails tempDetails = TempDetails.fromString(line);
+							listDetails.add(tempDetails);
+						}
 					}
 				}
 			}
 		} catch (IOException exception) {
 			exception.printStackTrace();
 		}
+	}
+	
+	public void setDataRead(boolean dataRead) {
+		this.dataRead = dataRead;
+	}
+
+	public boolean isDataRead() {
+		return dataRead;
+	}
+
+	public List<TempDetails> getListDetails() {
+		return listDetails;
 	}
 }

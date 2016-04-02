@@ -23,9 +23,8 @@ public class Node {
 		System.out.println("Sampled Data of size: " + samples.size());
 		networkManager.waitForServers();
 		networkManager.fillPartition(samples);
-		System.out.println("Sampling Completed");
 		System.out.println("Sorting " + tempDetails.size() + " data");
-		networkManager.sortData(tempDetails);
+		//networkManager.sortData(tempDetails);
 		System.out.println("Sorted data");
 		System.exit(0);
 	}

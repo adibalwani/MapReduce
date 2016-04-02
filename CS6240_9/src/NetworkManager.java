@@ -23,7 +23,7 @@ public class NetworkManager {
 	
 	private List<HostPortPair> hostList;
 	private HostPortPair hostPortPair;
-	private List<List<TempDetails>> tempDetailsMasterList;
+	private List<Server> serverList;
 	private List<Partition> partitionList;
 	private Barrier barrier;
 	
@@ -39,14 +39,15 @@ public class NetworkManager {
 		serverSocketMap = new HashMap<String, TextSocket.Server>();
 		clientSocketMap = new HashMap<String, TextSocket>(); 
 		partitionList = new ArrayList<Partition>();
+		serverList = new ArrayList<Server>();
 	}
 	
 	/**
 	 * Spawn Server thread to read incoming client connections
 	 */
 	public void spawnServers() {
-		tempDetailsMasterList = new ArrayList<List<TempDetails>>();
 		barrier = new Barrier(BARRIER_PORT_1);
+		
 		for (HostPortPair client : hostList) {
 			// Don't spawn for self
 			if (client.isHost()) {
@@ -59,9 +60,9 @@ public class NetworkManager {
 						getServerPort(client)
 				);
 				serverSocketMap.put(client.getHostName(), svr);
-				List<TempDetails> listDetails = new ArrayList<TempDetails>(); 
-				tempDetailsMasterList.add(listDetails);
-				new Server(svr, listDetails).start();
+				Server server = new Server(svr);
+				serverList.add(server);
+				server.start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -83,7 +84,6 @@ public class NetworkManager {
 					String serverHostName = server.getHostName();
 					TextSocket conn = new TextSocket(serverHostName, getClientPort(server));
 					clientSocketMap.put(serverHostName, conn);
-					//conn.close();
 					break;
 				} catch (IOException e) {
 					System.out.println("Waiting for " + server.getHostName() + " to be up");
@@ -120,26 +120,43 @@ public class NetworkManager {
 				HostPortPair server = getHostPortPair(hostName);
 				TextSocket conn = clientSocketMap.get(server.getHostName());
 				conn.putln(tempDetail.toString());
-				//TextSocket conn = new TextSocket(hostName, getClientPort(server));
-				//new Client(conn, tempDetail.toString()).run();
-				//conn.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		
+		System.out.println("Sent data");
+		
+		// Send Barrier complete to all
 		for (HostPortPair server : hostList) {
 			// Don't send to itself
 			if (server.isHost()) {
 				continue;
 			}
 			new Barrier.CompleteThread(server.getHostName(), BARRIER_PORT_2).start();
+			
+			try {
+				TextSocket conn = clientSocketMap.get(server.hostName);
+				conn.putln("done");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		// Wait for barrier to lift
 		barrier.barrier(hostList.size());
 		System.out.println("Barrier lifted");
 		
+		// Wait for data to be processed
+		for (Server server : serverList) {
+			while (!server.isDataRead()) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		
 		List<TempDetails> data = mergeList(dataList);
 		Collections.sort(data);
@@ -166,11 +183,10 @@ public class NetworkManager {
 			// Broadcast samples to servers
 			try {
 				TextSocket conn = clientSocketMap.get(server.getHostName());
-				//TextSocket conn = new TextSocket(server.getHostName(), getClientPort(server));
 				for (TempDetails tempDetail : tempDetails) {
 					conn.putln(tempDetail.toString());
 				}
-				//conn.close();
+				conn.putln("done");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -183,12 +199,24 @@ public class NetworkManager {
 		barrier.barrier(len);
 		System.out.println("Barrier lifted");
 		
+		// Wait for data to be processed
+		for (Server server : serverList) {
+			while (!server.isDataRead()) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
 		// Fill the pivots
 		List<TempDetails> samples = mergeList(tempDetails);
 		Collections.sort(samples);
 		Collections.reverse(samples);
 		getPivots(samples);
-		Printer.printTempDetails(samples, "file");
+		//Printer.printTempDetails(samples, "file");
+		System.out.println("Sampling Completed for " + samples.size());
 		clearList();
 	}
 	
@@ -212,8 +240,9 @@ public class NetworkManager {
 	 * Clear all the data Lists
 	 */
 	private void clearList() {
-		for (List<TempDetails> tempDetails : tempDetailsMasterList) {
-			tempDetails.clear();
+		for (Server server : serverList) {
+			server.getListDetails().clear();
+			server.setDataRead(false);
 		}
 	}
 	
@@ -225,14 +254,15 @@ public class NetworkManager {
 	private void getPivots(List<TempDetails> samples) {
 		int len = hostList.size();
 		int index = samples.size() / len;
+		int start = index;
 		
-		for (int i = 0; i < len - 1; i++) {
+		for (int i = 0; i < len - 1 && index < samples.size(); i++) {
 			TempDetails tempDetails = samples.get(index);
 			float temp = tempDetails.getTemperature();
 			String hostName = hostList.get(i).getHostName();
 			partitionList.add(new Partition(temp, hostName));
-			System.out.println("Pivot: "  + temp + " " + hostName);
-			index += index;
+			System.out.println("Pivot: " + temp + " " + hostName);
+			index += start;
 		}
 	}
 	
@@ -277,8 +307,8 @@ public class NetworkManager {
 	 */
 	private List<TempDetails> mergeList(List<TempDetails> tempDetails) {
 		List<TempDetails> samples = new ArrayList<TempDetails>();
-		for (List<TempDetails> tempDetail : tempDetailsMasterList) {
-			samples.addAll(tempDetail);
+		for (Server server : serverList) {
+			samples.addAll(server.getListDetails());
 		}
 		samples.addAll(tempDetails);
 		return samples;
@@ -334,10 +364,8 @@ public class NetworkManager {
 	 * @return Port number
 	 */
 	private int getServerPort(HostPortPair receiver) {
-		int len = hostList.size();
 		return (hostPortPair.getInstanceNumber() - 1) * 2 + 
-				(receiver.getInstanceNumber() - 1) +
-				(len * len - len) + PORT_START;
+				(receiver.getInstanceNumber() - 1) + PORT_START;
 	}
 	
 	/**
@@ -347,10 +375,8 @@ public class NetworkManager {
 	 * @return Port number
 	 */
 	private int getClientPort(HostPortPair receiver) {
-		int len = hostList.size();
 		return (receiver.getInstanceNumber() - 1) * 2 + 
-				(hostPortPair.getInstanceNumber() - 1) +
-				(len * len - len) + PORT_START;
+				(hostPortPair.getInstanceNumber() - 1) + PORT_START;
 	}
 	
 	/**
