@@ -4,30 +4,33 @@ import sys
 from subprocess import call
 import subprocess
 import time
+import commands
 
 lines = 0
-var = 0
 path=[]
-timoeut=0
-flag = 0
 with open('original-dns', 'r+') as fm:
 	for line in fm:
 		server = "ec2-user@" + str(line)[:-1]
-		# remote_output = subprocess.check_output(["ssh", "-i", "ec2-key.pem", "-o", "StrictHostKeyChecking=no", server, "mkdir", "input", "~/.aws"], stderr=subprocess.STDOUT)
-		# print remote_output
-		# while flag != 1:
-		# 	ssh = subprocess.Popen(["ssh", "-i", "ec2-key.pem", "-o", "StrictHostKeyChecking=no", server, "mkdir", "input", "~/.aws", "ls"], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		# 	result = ssh.stdout.readlines()
-		# 	if result == []:
-		# 		error = ssh.stderr.readlines()
-		# 		print >>sys.stderr, "ERROR: %s" % error
-		# 		if "refused" in error[0]:
-		# 			flag = 0
-		# 	else:
-		# 		flag = 1
-		# 		print result
-		call(["ssh", "-i", "ec2-key.pem", "-o", "StrictHostKeyChecking=no", server, "mkdir", "input", "output", "~/.aws"])
-		#call(["ssh", "-i", "ec2-key.pem", "-o", "StrictHostKeyChecking=no", server, "mkdir", "ouput"])
+		call(["ssh-keygen", "-R", str(line)[:-1]])
+		flag = 1
+		while flag != 0:
+			try:
+				time.sleep(2)
+				remove = subprocess.check_call(["ssh", "-i", "ec2-key.pem", "-o", "StrictHostKeyChecking=no", server, "rm -rf", "input", "output", "~/.aws"])
+				print "remove status", remove
+				flag = 0
+			except:
+				flag = 1
+
+		flag2 = 1
+		while flag2 != 0:
+			try:
+				time.sleep(2)
+				var = subprocess.check_call(["ssh", "-i", "ec2-key.pem", "-o", "StrictHostKeyChecking=no", server, "mkdir", "input", "output", "~/.aws"])
+				print "put status", var
+				flag2 = 0
+			except:
+				flag2 = 1
 		call(["scp", "-i", "ec2-key.pem", "credentials", server + ":~/.aws/"])
 		src = server + ":~/"
 		path.append(src)

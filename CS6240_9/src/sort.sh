@@ -13,4 +13,4 @@ python transferDNS.py
 sh copy.sh
 sh startJob.sh
 sh outputS3.sh
-python filemerge.py
+python filemerge.py $3
