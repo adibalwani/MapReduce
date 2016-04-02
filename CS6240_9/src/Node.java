@@ -24,7 +24,7 @@ public class Node {
 		networkManager.waitForServers();
 		networkManager.fillPartition(samples);
 		System.out.println("Sorting " + tempDetails.size() + " data");
-		//networkManager.sortData(tempDetails);
+		networkManager.sortData(tempDetails);
 		System.out.println("Sorted data");
 		System.exit(0);
 	}

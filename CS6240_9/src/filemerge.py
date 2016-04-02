@@ -3,7 +3,7 @@ import os
 import sys
 from subprocess import call
 
-BUCKET_NAME = sys.argv[2]
+#BUCKET_NAME = sys.argv[2]
 
 listoffile = []
 results = []
@@ -24,5 +24,5 @@ for file in results:
 			f1.write(line)
 f1.close()
 
-call(["aws", "s3", "cp", "final_output", "s3://$BUCKET_NAME/output". "--recursive"])
+#call(["aws", "s3", "cp", "final_output", "s3://$BUCKET_NAME/output", "--recursive"])
 	

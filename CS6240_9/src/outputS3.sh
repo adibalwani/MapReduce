@@ -1,6 +1,6 @@
 # Author: Rachit Puri and Rushikesh Badami
 
-BUCKET_NAME="s3://mapred012"
+BUCKET_NAME="s3://mapred015"
 #OUTPUT="output12"
 
 aws s3 rb $BUCKET_NAME --force
