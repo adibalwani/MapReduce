@@ -7,7 +7,6 @@ if [ $# -ne 5 ]; then
 	exit 1
 fi
 
-Compile
 make compile
 python chunk.py $4
 python transferDNS.py

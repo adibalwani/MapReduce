@@ -4,8 +4,8 @@ import sys
 from subprocess import call
 import math
 
-#bucketname = sys.argv[1]
-bucketname = "s3://cs6240sp16/climate"
+bucketname = sys.argv[1]
+#bucketname = "s3://cs6240sp16/climate"
 instances = 0.0
 with open("original-dns", "r") as fd:
 	for line in fd:

@@ -147,16 +147,7 @@ public class NetworkManager {
 		barrier.barrier(hostList.size());
 		System.out.println("Barrier lifted");
 		
-		// Wait for data to be processed
-		for (Server server : serverList) {
-			while (!server.isDataRead()) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		waitForCompletion();
 		
 		List<TempDetails> data = mergeList(dataList);
 		Collections.sort(data);
@@ -199,7 +190,21 @@ public class NetworkManager {
 		barrier.barrier(len);
 		System.out.println("Barrier lifted");
 		
-		// Wait for data to be processed
+		waitForCompletion();
+		
+		// Fill the pivots
+		List<TempDetails> samples = mergeList(tempDetails);
+		Collections.sort(samples);
+		Collections.reverse(samples);
+		getPivots(samples);
+		System.out.println("Sampling Completed for " + samples.size());
+		clearList();
+	}
+	
+	/**
+	 * Wait for data to be processed
+	 */
+	private void waitForCompletion() {
 		for (Server server : serverList) {
 			while (!server.isDataRead()) {
 				try {
@@ -209,15 +214,6 @@ public class NetworkManager {
 				}
 			}
 		}
-		
-		// Fill the pivots
-		List<TempDetails> samples = mergeList(tempDetails);
-		Collections.sort(samples);
-		Collections.reverse(samples);
-		getPivots(samples);
-		//Printer.printTempDetails(samples, "file");
-		System.out.println("Sampling Completed for " + samples.size());
-		clearList();
 	}
 	
 	/**
