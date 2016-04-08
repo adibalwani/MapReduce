@@ -1,33 +1,73 @@
 package edu.neu.hadoop.conf;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
+import edu.neu.hadoop.mapreduce.Mapper;
+import edu.neu.hadoop.mapreduce.Reducer;
 
-import edu.neu.hadoop.io.Writable;
 
-public class Configuration 
-	implements Iterable<Map.Entry<String,String>>, Writable {
-
-	@Override
-	public void write(DataOutput out) throws IOException {
-		// TODO Auto-generated method stub
-		
+/**
+ * Provides access to configuration parameters.
+ * 
+ * @author Adib Alwani
+ */
+@SuppressWarnings("rawtypes")
+public class Configuration {
+	
+	private Class<? extends Mapper> mapperClass;
+	private Class<? extends Reducer> reducerClass;
+	private Class<?> mapOutputKeyClass;
+	private Class<?> mapOutputValueClass;
+	private Class<?> outputKeyClass;
+	private Class<?> outputValueClass;
+	private String jar;
+	private Class<?> jarByClass;
+	
+	public Class<? extends Mapper> getMapperClass() {
+		return mapperClass;
 	}
-
-	@Override
-	public void readFields(DataInput in) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public void setMapperClass(Class<? extends Mapper> mapperClass) {
+		this.mapperClass = mapperClass;
 	}
-
-	@Override
-	public Iterator<Entry<String, String>> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+	public Class<? extends Reducer> getReducerClass() {
+		return reducerClass;
+	}
+	public void setReducerClass(Class<? extends Reducer> reducerClass) {
+		this.reducerClass = reducerClass;
+	}
+	public Class<?> getMapOutputKeyClass() {
+		return mapOutputKeyClass;
+	}
+	public void setMapOutputKeyClass(Class<?> mapOutputKeyClass) {
+		this.mapOutputKeyClass = mapOutputKeyClass;
+	}
+	public Class<?> getMapOutputValueClass() {
+		return mapOutputValueClass;
+	}
+	public void setMapOutputValueClass(Class<?> mapOutputValueClass) {
+		this.mapOutputValueClass = mapOutputValueClass;
+	}
+	public Class<?> getOutputKeyClass() {
+		return outputKeyClass;
+	}
+	public void setOutputKeyClass(Class<?> outputKeyClass) {
+		this.outputKeyClass = outputKeyClass;
+	}
+	public Class<?> getOutputValueClass() {
+		return outputValueClass;
+	}
+	public void setOutputValueClass(Class<?> outputValueClass) {
+		this.outputValueClass = outputValueClass;
+	}
+	public String getJar() {
+		return jar;
+	}
+	public void setJar(String jar) {
+		this.jar = jar;
+	}
+	public Class<?> getJarByClass() {
+		return jarByClass;
+	}
+	public void setJarByClass(Class<?> jarByClass) {
+		this.jarByClass = jarByClass;
 	}
 
 }

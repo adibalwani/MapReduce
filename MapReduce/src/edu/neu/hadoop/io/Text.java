@@ -4,8 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class Text extends BinaryComparable 
-	implements WritableComparable<BinaryComparable> {
+public class Text implements Writable {
 
 	@Override
 	public void write(DataOutput out) throws IOException {
@@ -13,11 +12,6 @@ public class Text extends BinaryComparable
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
-	}
-
-	@Override
-	public int compareTo(BinaryComparable arg0) {
-		return 0;
 	}
 
 }
