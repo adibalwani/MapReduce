@@ -129,5 +129,13 @@ public class Job {
 		Master master = new Master(conf);
 		return master.submitJob();
 	}
-	
+
+	/**
+	 * Get the configuration for this job
+	 * 
+	 * @return Job Config
+	 */
+	public Configuration getConfiguration() {
+		return conf;
+	}
 }

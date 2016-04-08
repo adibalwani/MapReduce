@@ -1,5 +1,6 @@
 package edu.neu.hadoop.conf;
 
+import edu.neu.hadoop.fs.Path;
 import edu.neu.hadoop.mapreduce.Mapper;
 import edu.neu.hadoop.mapreduce.Reducer;
 
@@ -20,6 +21,8 @@ public class Configuration {
 	private Class<?> outputValueClass;
 	private String jar;
 	private Class<?> jarByClass;
+	private Path[] inputPath;
+	private Path outputPath;
 	
 	public Class<? extends Mapper> getMapperClass() {
 		return mapperClass;
@@ -69,5 +72,16 @@ public class Configuration {
 	public void setJarByClass(Class<?> jarByClass) {
 		this.jarByClass = jarByClass;
 	}
-
+	public Path[] getInputPath() {
+		return inputPath;
+	}
+	public void setInputPath(Path[] inputPath) {
+		this.inputPath = inputPath;
+	}
+	public Path getOutputPath() {
+		return outputPath;
+	}
+	public void setOutputPath(Path outputPath) {
+		this.outputPath = outputPath;
+	}
 }

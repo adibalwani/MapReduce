@@ -26,6 +26,13 @@ public class Master {
 	 * @return true, iff the job was successfully executed. False, otherwise
 	 */
 	public boolean submitJob() {
-		return true;
+		MapperThread mapTask = new MapperThread(conf);
+		mapTask.start();
+		try {
+			mapTask.join();
+			return true;
+		} catch (InterruptedException e) {
+			return false;
+		}
 	}
 }
