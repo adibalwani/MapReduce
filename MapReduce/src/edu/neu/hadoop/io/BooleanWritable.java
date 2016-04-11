@@ -6,7 +6,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-public class BooleanWritable implements Writable{
+public class BooleanWritable implements Writable,Comparable<BooleanWritable>{
 	private boolean value;
 	
 	public BooleanWritable() {
@@ -32,5 +32,11 @@ public class BooleanWritable implements Writable{
 {
 	BooleanWritable booleanWritable=new BooleanWritable(true);
 	}*/
+
+	public int compareTo( BooleanWritable o) {
+		// TODO Auto-generated method stub
+		
+		return Boolean.compare(this.value, o.value);
+	}
 	
 }

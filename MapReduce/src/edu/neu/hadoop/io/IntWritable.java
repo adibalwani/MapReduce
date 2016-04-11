@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class IntWritable implements Writable {
+public class IntWritable implements Writable,Comparable<IntWritable> {
 	private int value;
 	
 	public IntWritable() {
@@ -34,5 +34,11 @@ public class IntWritable implements Writable {
 		// TODO Auto-generated method stub
 	value=in.readInt();	
 	}
+
+	public int compareTo(IntWritable o) {
+		// TODO Auto-generated method stub
+		return Integer.compare(this.value, o.value);
+	}
+	
 
 }

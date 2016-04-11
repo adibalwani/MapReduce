@@ -4,7 +4,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class FloatWritable  implements Writable{
+public class FloatWritable  implements Writable,Comparable<FloatWritable>{
 	private float value;
 	
 	public FloatWritable() {
@@ -25,6 +25,11 @@ public class FloatWritable  implements Writable{
 	public void readFields(DataInput in) throws IOException {
 		// TODO Auto-generated method stub
 		value=in.readFloat();
+	}
+
+	public int compareTo(FloatWritable o) {
+		// TODO Auto-generated method stub
+		return Float.compare(this.value, o.value);
 	}
 
 }
