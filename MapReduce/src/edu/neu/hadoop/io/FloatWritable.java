@@ -12,8 +12,10 @@ import java.io.IOException;
  */
 public class FloatWritable implements Writable, Comparable<FloatWritable> {
 
-	private Float value;
+	private float value;
 
+	public FloatWritable() { }
+	
 	public FloatWritable(float value) {
 		this.value = value;
 	}
@@ -33,7 +35,7 @@ public class FloatWritable implements Writable, Comparable<FloatWritable> {
 		return Float.compare(this.value, o.getValue());
 	}
 
-	public Float getValue() {
+	public float getValue() {
 		return value;
 	}
 

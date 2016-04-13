@@ -13,6 +13,8 @@ import java.io.IOException;
 public class BooleanWritable implements Writable, Comparable<BooleanWritable> {
 
 	private boolean value;
+	
+	public BooleanWritable() { }
 
 	public BooleanWritable(boolean value) {
 		this.value = value;

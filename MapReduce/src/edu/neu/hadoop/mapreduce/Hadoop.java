@@ -16,7 +16,7 @@ public class Hadoop {
 			IllegalAccessException, ClassNotFoundException {
 		
 		if (args.length < 3) {
-			System.out.println("Run as: hadoop [MainClass] [input path] [output path]");
+			System.out.println("Run as: Hadoop [Program] [input path] [output path]");
 			return;
 		}
 		

@@ -13,6 +13,8 @@ import java.io.IOException;
 public class Text implements Writable, Comparable<Text> {
 
 	private String value;
+	
+	public Text() { }
 
 	public Text(String value) {
 		this.value = value;

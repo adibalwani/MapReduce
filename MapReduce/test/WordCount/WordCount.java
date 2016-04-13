@@ -1,15 +1,16 @@
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.mapreduce.Context;
+import edu.neu.hadoop.fs.Path;
+import edu.neu.hadoop.io.IntWritable;
+import edu.neu.hadoop.io.Text;
+import edu.neu.hadoop.mapreduce.Job;
+import edu.neu.hadoop.mapreduce.Mapper;
+import edu.neu.hadoop.mapreduce.Reducer;
+import edu.neu.hadoop.mapreduce.lib.input.FileInputFormat;
+import edu.neu.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class WordCount {
 
@@ -51,6 +52,8 @@ public class WordCount {
     job.setJarByClass(WordCount.class);
     job.setMapperClass(TokenizerMapper.class);
     job.setReducerClass(IntSumReducer.class);
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(IntWritable.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     FileInputFormat.addInputPath(job, new Path(args[0]));
