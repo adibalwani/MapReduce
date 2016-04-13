@@ -17,7 +17,7 @@ public class MapperThread extends Thread {
 	/**
 	 * Call {@link Mapper#map(Object, Text, edu.neu.hadoop.mapreduce.Mapper.Context)}
 	 * on each input line, partition the emitted data (if any), sort and spill onto the
-	 * disk 
+	 * disk
 	 */
 	@Override
 	public void run() {
@@ -26,6 +26,7 @@ public class MapperThread extends Thread {
 			Mapper mapper = (Mapper) Class.forName(mapperClass.getName()).newInstance();
 			mapper.run(mapContext);
 			mapContext.sortPartitions();
+			mapContext.spillToDisk();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

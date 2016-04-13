@@ -1,12 +1,11 @@
 package edu.neu.hadoop.mapreduce;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.mapreduce.lib.output.Writer;
 import edu.neu.hadoop.mapreduce.lib.partition.HashPartitioner;
 
 
@@ -37,10 +36,9 @@ public class MapContext extends Context {
 	@Override
 	public <KEYOUT, VALUEOUT> void write(KEYOUT key, VALUEOUT value) {
 		List<KeyValue> list = partitions.get(
-				partitioner.getPartition(key, value, numPartitions)
+			partitioner.getPartition(key, value, numPartitions)
 		);
 		list.add(new KeyValue(key, value));
-	
 	}
 	
 	/**
@@ -53,25 +51,12 @@ public class MapContext extends Context {
 	}
 	
 	/**
-	 * Spill data to disk
-	 * @throws IOException 
+	 * Spill individual partitions to disk
 	 */
-	public void spillToDisk() throws IOException {
-		String partition="Partition";
-		File dir = new File(partition);
-		if(!dir.exists())
-		{
-		dir.mkdir();
-		}
-		int count=0;
-		for (List<KeyValue> p:partitions) 
-		{
-		File direct=new File(partition+"//"+String.valueOf(count));
-		if(!direct.exists())
-		{
-			direct.mkdirs();
-		}
-		
+	public void spillToDisk() {
+		Writer writer = new Writer();
+		for (int i = 0; i < numPartitions; i++) {
+			writer.write(partitions.get(i), i, Thread.currentThread().getName());
 		}
 	}
 }
