@@ -7,7 +7,7 @@ import java.io.IOException;
 public class IntWritable implements Writable, Comparable<IntWritable> {
 	
 	private int value;
-
+	
 	public IntWritable(int value) {
 		this.value = value;
 	}

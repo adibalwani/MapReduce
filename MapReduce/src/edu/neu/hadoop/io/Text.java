@@ -10,25 +10,29 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-public class Text implements Writable {
+public class Text implements Writable,Comparable<Text> {
 
-	public Text(String val) {
-		
+private	String value;
+
+
+	public Text(String value) {
+		super();
+		this.value = value;
 	}
-	
-	private static final byte [] EMPTY_BYTES = new byte[0];
 
-	@Override
 	public void write(DataOutput out) throws IOException {
-		// TODO Auto-generated method stub
-		
+		out.writeChars(value);
 	}
 
-	@Override
 	public void readFields(DataInput in) throws IOException {
-		// TODO Auto-generated method stub
-		
+		value=in.readLine();
 	}
 			  
+	public int compareTo(Text o){
+		return  o.getValue().compareTo(this.getValue());
+	}
 
+	public String getValue() {
+		return value;
+	}
 }

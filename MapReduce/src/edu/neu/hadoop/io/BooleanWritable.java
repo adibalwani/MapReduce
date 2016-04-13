@@ -9,34 +9,23 @@ import java.io.ObjectInputStream;
 public class BooleanWritable implements Writable,Comparable<BooleanWritable>{
 	private boolean value;
 	
-	public BooleanWritable() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
+	
 	public BooleanWritable(boolean value) {
 		super();
 		this.value = value;
 	}
 
 	public void write(DataOutput out) throws IOException {
-		// TODO Auto-generated method stub
 	out.writeBoolean(value);	
 	}
 
 	public void readFields(DataInput in) throws IOException {
-		// TODO Auto-generated method stub
-		value=in.readBoolean();
+	value=in.readBoolean();
 	}
-/*public static void main(String args[]) throws IOException
-{
-	BooleanWritable booleanWritable=new BooleanWritable(true);
-	}*/
+
 
 	public int compareTo( BooleanWritable o) {
-		// TODO Auto-generated method stub
-		
-		return Boolean.compare(this.value, o.value);
+	return Boolean.compare(o.value,this.value);
 	}
 	
 }
