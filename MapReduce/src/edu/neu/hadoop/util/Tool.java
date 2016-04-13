@@ -1,10 +1,6 @@
 package edu.neu.hadoop.util;
 
-import Configurable;
-import GenericOptionsParser;
-import InterfaceAudience;
-import InterfaceStability;
-import ToolRunner;
+import edu.neu.hadoop.conf.Configurable;
 
 /**
  * A tool interface that supports handling of generic command-line options.

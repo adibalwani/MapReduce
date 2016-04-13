@@ -1,5 +1,6 @@
 package edu.neu.hadoop.util;
 
+import edu.neu.hadoop.conf.Configuration;
 
 /**
  * A utility to help run {@link Tool}s.
@@ -38,21 +39,21 @@ public class ToolRunner {
 	 */
 	public static int run(Configuration conf, Tool tool, String[] args)
 			throws Exception {
-		if (CallerContext.getCurrent() == null) {
+		/*if (CallerContext.getCurrent() == null) {
 			CallerContext ctx = new CallerContext.Builder("CLI").build();
 			CallerContext.setCurrent(ctx);
-		}
+		}*/
 
 		if (conf == null) {
 			conf = new Configuration();
 		}
-		GenericOptionsParser parser = new GenericOptionsParser(conf, args);
+		//GenericOptionsParser parser = new GenericOptionsParser(conf, args);
 		// set the configuration back, so that Tool can configure itself
 		tool.setConf(conf);
 
 		// get the args w/o generic hadoop args
-		String[] toolArgs = parser.getRemainingArgs();
-		return tool.run(toolArgs);
+		//String[] toolArgs = parser.getRemainingArgs();
+		return tool.run(args);
 	}
 
 	/**
@@ -69,5 +70,4 @@ public class ToolRunner {
 	public static int run(Tool tool, String[] args) throws Exception {
 		return run(tool.getConf(), tool, args);
 	}
-
 }
