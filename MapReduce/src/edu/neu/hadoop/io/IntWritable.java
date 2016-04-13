@@ -4,10 +4,16 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * A serializable int object which implements a simple, efficient, serialization
+ * protocol, based on {@link DataInput} and {@link DataOutput}
+ * 
+ * @author Rushikesh Badami
+ */
 public class IntWritable implements Writable, Comparable<IntWritable> {
-	
+
 	private int value;
-	
+
 	public IntWritable(int value) {
 		this.value = value;
 	}
@@ -24,14 +30,10 @@ public class IntWritable implements Writable, Comparable<IntWritable> {
 
 	@Override
 	public int compareTo(IntWritable o) {
-		return Integer.compare(o.value, this.value);
-	}
-	
-	public int getValue() {
-		return value;
+		return Integer.compare(this.value, o.getValue());
 	}
 
-	public void setValue(int value) {
-		this.value = value;
+	public int getValue() {
+		return value;
 	}
 }

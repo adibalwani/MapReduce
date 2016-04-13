@@ -1,31 +1,39 @@
 package edu.neu.hadoop.io;
 
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 
-public class BooleanWritable implements Writable,Comparable<BooleanWritable>{
+/**
+ * A serializable boolean object which implements a simple, efficient,
+ * serialization protocol, based on {@link DataInput} and {@link DataOutput}
+ * 
+ * @author Rushikesh Badami
+ */
+public class BooleanWritable implements Writable, Comparable<BooleanWritable> {
+
 	private boolean value;
-	
-	
+
 	public BooleanWritable(boolean value) {
-		super();
 		this.value = value;
 	}
 
+	@Override
 	public void write(DataOutput out) throws IOException {
-	out.writeBoolean(value);	
+		out.writeBoolean(value);
 	}
 
+	@Override
 	public void readFields(DataInput in) throws IOException {
-	value=in.readBoolean();
+		value = in.readBoolean();
 	}
 
-
-	public int compareTo( BooleanWritable o) {
-	return Boolean.compare(o.value,this.value);
+	@Override
+	public int compareTo(BooleanWritable o) {
+		return Boolean.compare(this.value, o.getValue());
 	}
-	
+
+	public boolean getValue() {
+		return value;
+	}
 }
