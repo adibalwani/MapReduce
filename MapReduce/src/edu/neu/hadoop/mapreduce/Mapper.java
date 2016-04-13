@@ -2,6 +2,10 @@ package edu.neu.hadoop.mapreduce;
 
 import java.io.IOException;
 
+import edu.neu.hadoop.fs.Path;
+import edu.neu.hadoop.io.Text;
+import edu.neu.hadoop.mapreduce.lib.input.Reader;
+
 /**
  * Maps input key/value pairs to a set of intermediate key/value pairs.  
  * 
@@ -19,13 +23,6 @@ import java.io.IOException;
  * @author Adib Alwani
  */
 public class Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
-	
-	/**
-	 * The <code>Context</code> passed on to the {@link Mapper} implementations.
-	 */
-	public abstract class Context implements
-			MapContext<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
-	}
 
 	/**
 	 * Called once at the beginning of the task.
@@ -60,14 +57,22 @@ public class Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 	 * @param context
 	 * @throws IOException
 	 */
-	public void run(Context context) throws IOException, InterruptedException {
+	public void run(final Context context) throws IOException, InterruptedException {
 		setup(context);
-		try {
-			while (context.nextKeyValue()) {
-				map(context.getCurrentKey(), context.getCurrentValue(), context);
-			}
-		} finally {
-			cleanup(context);
+		Reader reader = new Reader();
+		for (Path path : context.getInputPaths()) {
+			reader.readFileOrDirectory(path.getPath(), new Reader.ReadListener() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public void onReadLine(String line) {
+					try {
+						map(null, (VALUEIN) new Text(line), context);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		}
+		cleanup(context);
 	}
 }

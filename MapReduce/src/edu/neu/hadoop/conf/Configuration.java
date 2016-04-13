@@ -23,6 +23,11 @@ public class Configuration {
 	private Class<?> jarByClass;
 	private Path[] inputPath;
 	private Path outputPath;
+	private int numReduceTasks;
+	
+	public Configuration() {
+		numReduceTasks = 1;
+	}
 	
 	public Class<? extends Mapper> getMapperClass() {
 		return mapperClass;
@@ -83,5 +88,11 @@ public class Configuration {
 	}
 	public void setOutputPath(Path outputPath) {
 		this.outputPath = outputPath;
+	}
+	public int getNumReduceTasks() {
+		return numReduceTasks;
+	}
+	public void setNumReduceTasks(int numReduceTasks) {
+		this.numReduceTasks = numReduceTasks;
 	}
 }
