@@ -1,6 +1,9 @@
 package edu.neu.hadoop.mapreduce;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import edu.neu.hadoop.conf.Configuration;
@@ -12,10 +15,9 @@ import edu.neu.hadoop.mapreduce.lib.partition.HashPartitioner;
  * 
  * @author Adib Alwani
  */
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes", "unchecked", "unused"})
 public class MapContext extends Context {
 	
-	@SuppressWarnings("unused")
 	private Configuration conf;
 	private List<List<KeyValue>> partitions;
 	Partitioner partitioner;
@@ -32,32 +34,44 @@ public class MapContext extends Context {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <KEYOUT, VALUEOUT> void write(KEYOUT key, VALUEOUT value) {
 		List<KeyValue> list = partitions.get(
 				partitioner.getPartition(key, value, numPartitions)
 		);
 		list.add(new KeyValue(key, value));
+	
 	}
 	
 	/**
-	 * POJO to store emitted key-value pair
-	 * 
-	 * @author Adib Alwani
+	 * Sort individual partitions
 	 */
-	static class KeyValue<KEY, VALUE> implements Comparable<KEY> {
-		KEY key;
-		VALUE value;
-		
-		public KeyValue(KEY key, VALUE value) {
-			this.key = key;
-			this.value = value;
+	public void sortPartitions() {
+		for (List<KeyValue> partition : partitions) {
+			Collections.sort(partition);
 		}
-
-		@Override
-		public int compareTo(KEY o) {
-			return key.compareTo(0);
+	}
+	
+	/**
+	 * Spill data to disk
+	 * @throws IOException 
+	 */
+	public void spillToDisk() throws IOException {
+		String partition="Partition";
+		File dir = new File(partition);
+		if(!dir.exists())
+		{
+		dir.mkdir();
+		}
+		int count=0;
+		for (List<KeyValue> p:partitions) 
+		{
+		File direct=new File(partition+"//"+String.valueOf(count));
+		if(!direct.exists())
+		{
+			direct.mkdirs();
+		}
+		
 		}
 	}
 }

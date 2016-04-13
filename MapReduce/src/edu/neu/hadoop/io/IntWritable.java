@@ -4,19 +4,29 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class IntWritable implements Writable,Comparable<IntWritable> {
-	private int value;
+public class IntWritable implements Writable, Comparable<IntWritable> {
 	
-	public IntWritable() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	private int value;
 
 	public IntWritable(int value) {
-		super();
 		this.value = value;
 	}
 
+	@Override
+	public void write(DataOutput out) throws IOException {
+		out.writeInt(value);
+	}
+
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		value = in.readInt();
+	}
+
+	@Override
+	public int compareTo(IntWritable o) {
+		return Integer.compare(o.value, this.value);
+	}
+	
 	public int getValue() {
 		return value;
 	}
@@ -24,21 +34,4 @@ public class IntWritable implements Writable,Comparable<IntWritable> {
 	public void setValue(int value) {
 		this.value = value;
 	}
-
-	public void write(DataOutput out) throws IOException {
-		// TODO Auto-generated method stub
-		out.writeInt(value);
-	}
-
-	public void readFields(DataInput in) throws IOException {
-		// TODO Auto-generated method stub
-	value=in.readInt();	
-	}
-
-	public int compareTo(IntWritable o) {
-		// TODO Auto-generated method stub
-		return Integer.compare(this.value, o.value);
-	}
-	
-
 }

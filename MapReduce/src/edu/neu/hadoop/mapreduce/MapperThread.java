@@ -22,8 +22,10 @@ public class MapperThread extends Thread {
 	@Override
 	public void run() {
 		try {
+			MapContext mapContext = new MapContext(conf);
 			Mapper mapper = (Mapper) Class.forName(mapperClass.getName()).newInstance();
-			mapper.run(new MapContext(conf));
+			mapper.run(mapContext);
+			mapContext.sortPartitions();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
