@@ -5,12 +5,11 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class FloatWritable  implements Writable,Comparable<FloatWritable>{
-	private float value;
+	private Float value;
 	
-	public FloatWritable() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	
+
+	
 
 	public FloatWritable(float value) {
 		super();
@@ -18,18 +17,25 @@ public class FloatWritable  implements Writable,Comparable<FloatWritable>{
 	}
 
 	public void write(DataOutput out) throws IOException {
-		// TODO Auto-generated method stub
+	
 		out.writeFloat(value);
 	}
 
+	
+
 	public void readFields(DataInput in) throws IOException {
-		// TODO Auto-generated method stub
+		
 		value=in.readFloat();
 	}
-
+	
 	public int compareTo(FloatWritable o) {
-		// TODO Auto-generated method stub
-		return Float.compare(this.value, o.value);
+	
+		return o.getValue() < this.getValue() ?-1
+				:o.getValue()>this.getValue() ?  1: 
+				0;	
+	}
+	public Float getValue() {
+		return value;
 	}
 
 }
