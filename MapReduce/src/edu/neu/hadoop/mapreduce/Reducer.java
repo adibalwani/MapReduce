@@ -12,14 +12,6 @@ import java.util.Iterator;
 public class Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 
 	/**
-	 * The <code>Context</code> passed on to the {@link Reducer}
-	 * implementations.
-	 */
-	public abstract class Context implements
-			ReduceContext<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
-	}
-
-	/**
 	 * Called once at the start of the task.
 	 */
 	protected void setup(Context context) throws IOException,
@@ -54,7 +46,7 @@ public class Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 	 * control how the reduce task works.
 	 */
 	public void run(Context context) throws IOException, InterruptedException {
-		setup(context);
+		/*setup(context);
 		try {
 			while (context.nextKey()) {
 				reduce(context.getCurrentKey(), context.getValues(), context);
@@ -67,6 +59,6 @@ public class Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 			}
 		} finally {
 			cleanup(context);
-		}
+		}*/
 	}
 }

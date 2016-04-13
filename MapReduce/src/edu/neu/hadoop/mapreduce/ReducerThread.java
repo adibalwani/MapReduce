@@ -14,6 +14,5 @@ public class ReducerThread extends Thread {
 	public void run() {
 		ReduceTask reduceTask = new ReduceTask(conf);
 		reduceTask.run();
-		
 	}
 }

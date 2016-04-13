@@ -3,6 +3,7 @@ package edu.neu.hadoop.mapreduce.lib.input;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystem;
@@ -30,7 +31,7 @@ public class Reader {
 	 * Read from the given file or directory.
 	 * After each line read, call {@link ReadListener#onReadLine(String)}
 	 * 
-	 * @param fileName The name of a text file or a folder
+	 * @param fileName The name of a file or a folder
 	 */
 	public void readFileOrDirectory(String fileName, ReadListener listener) {
 
@@ -41,18 +42,52 @@ public class Reader {
 		addFiles(new File(fileName), files);
 
 		for (File file : files) {
-			try (
-				InputStream gzipStream = new GZIPInputStream(new FileInputStream(file));
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(gzipStream));
-			) {
-				String line;
-				while ((line = reader.readLine()) != null) {
-					listener.onReadLine(line);
-				}
-			} catch (Exception exception) {
-				exception.printStackTrace();
+			if (file.getName().contains(".tar")) {
+				readGZIPFile(file, listener);
+			} else {
+				readFile(file, listener);
 			}
+		}
+	}
+	
+	/**
+	 * Read from the given compressed file
+	 * After each line read, call {@link ReadListener#onReadLine(String)}
+	 * 
+	 * @param file The name of a file
+	 */
+	public void readGZIPFile(File file, ReadListener listener) {
+		try (
+			InputStream gzipStream = new GZIPInputStream(new FileInputStream(file));
+			BufferedReader reader = new BufferedReader(
+				new InputStreamReader(gzipStream));
+		) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				listener.onReadLine(line);
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Read from the given file
+	 * After each line read, call {@link ReadListener#onReadLine(String)}
+	 * 
+	 * @param file The name of a file
+	 */
+	public void readFile(File file, ReadListener listener) {
+		try (
+			FileReader fileReader = new FileReader(file);
+			BufferedReader reader = new BufferedReader(fileReader);
+		) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				listener.onReadLine(line);
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
 		}
 	}
 	

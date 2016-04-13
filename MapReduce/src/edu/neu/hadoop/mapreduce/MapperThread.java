@@ -3,6 +3,14 @@ package edu.neu.hadoop.mapreduce;
 import edu.neu.hadoop.conf.Configuration;
 import edu.neu.hadoop.io.Text;
 
+/**
+ * Thread class to spawn a new Mapper Implementation.
+ * Call {@link Mapper#map(Object, Text, edu.neu.hadoop.mapreduce.Mapper.Context)} on
+ * each input line, partition the emitted data (if any), sort and spill onto the
+ * disk
+ * 
+ * @author Adib Alwani
+ */
 @SuppressWarnings("rawtypes")
 public class MapperThread extends Thread {
 	
@@ -14,11 +22,6 @@ public class MapperThread extends Thread {
 		mapperClass = conf.getMapperClass();
 	}
 
-	/**
-	 * Call {@link Mapper#map(Object, Text, edu.neu.hadoop.mapreduce.Mapper.Context)}
-	 * on each input line, partition the emitted data (if any), sort and spill onto the
-	 * disk
-	 */
 	@Override
 	public void run() {
 		try {
