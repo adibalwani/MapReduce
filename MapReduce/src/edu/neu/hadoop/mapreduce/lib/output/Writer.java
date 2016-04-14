@@ -8,6 +8,7 @@ import java.nio.file.FileSystem;
 import java.util.List;
 
 import edu.neu.hadoop.io.Writable;
+import edu.neu.hadoop.mapreduce.Constants;
 import edu.neu.hadoop.mapreduce.KeyValue;
 
 /**
@@ -18,8 +19,6 @@ import edu.neu.hadoop.mapreduce.KeyValue;
 @SuppressWarnings("rawtypes")
 public class Writer {
 	
-	private static final String FOLDER_NAME = "partition/";
-	
 	/**
 	 * Write the {@link KeyValue} pairs to the {@link FileSystem} in the
 	 * following structure: ./partition/numPartition/fileName
@@ -29,7 +28,7 @@ public class Writer {
 	 * @param fileName Name of the file
 	 */
 	public void write(List<KeyValue> pairs, int numPartition, String fileName) {
-		String folderUri = FOLDER_NAME + String.valueOf(numPartition) + "/";
+		String folderUri = Constants.PARTITION_FOLDER_NAME + String.valueOf(numPartition) + "/";
 		File folder = new File(folderUri);
 		if (!folder.exists()) {
 			folder.mkdirs();

@@ -14,6 +14,7 @@ import java.util.zip.GZIPInputStream;
 
 import edu.neu.hadoop.conf.Configuration;
 import edu.neu.hadoop.io.Writable;
+import edu.neu.hadoop.mapreduce.Constants;
 import edu.neu.hadoop.mapreduce.KeyValue;
 
 /**
@@ -22,8 +23,6 @@ import edu.neu.hadoop.mapreduce.KeyValue;
  * @author Adib Alwani
  */
 public class Reader {
-	
-	private static final String FOLDER_NAME = "partition/";
 	
 	public interface ReadListener {
 		/**
@@ -130,8 +129,8 @@ public class Reader {
 	 * @param fileName Name of the file
 	 * @param conf Configuration object
 	 */
-	public void read(int numPartition, String fileName, Configuration conf) {
-		String folderUri = FOLDER_NAME + String.valueOf(numPartition) + "/";
+	public void readFile(int numPartition, String fileName, Configuration conf) {
+		String folderUri = Constants.PARTITION_FOLDER_NAME + String.valueOf(numPartition) + "/";
 		String uri = folderUri + fileName;
 		File file = new File(uri);
 		Class<?> mapOutputKeyClass = conf.getMapOutputKeyClass();

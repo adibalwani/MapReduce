@@ -23,7 +23,7 @@ public class ReducerThread extends Thread {
 	public void run() {
 		System.out.println("Reducer Started");
 		Reader reader = new Reader();
-		reader.read(0, "Thread-0", conf);
+		reader.readFile(0, "Thread-0", conf);
 		System.out.println("Reducer Ended");
 	}
 }

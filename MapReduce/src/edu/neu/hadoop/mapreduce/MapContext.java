@@ -40,7 +40,6 @@ public class MapContext extends Context {
 			partitioner.getPartition(key, value, numPartitions)
 		);
 		list.add(new KeyValue(key, value));
-		
 	}
 	
 	/**

@@ -46,7 +46,8 @@ public class Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 	 * control how the reduce task works.
 	 */
 	public void run(Context context) throws IOException, InterruptedException {
-		/*setup(context);
+		setup(context);
+		/*
 		try {
 			while (context.nextKey()) {
 				reduce(context.getCurrentKey(), context.getValues(), context);
@@ -58,7 +59,8 @@ public class Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 				}
 			}
 		} finally {
-			cleanup(context);
+			
 		}*/
+		cleanup(context);
 	}
 }

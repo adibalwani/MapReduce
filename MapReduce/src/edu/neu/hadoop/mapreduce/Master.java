@@ -12,9 +12,7 @@ public class Master {
 	private Configuration conf;
 	
 	@SuppressWarnings("unused")
-	private Master() {
-		conf = new Configuration();
-	}
+	private Master() { }
 	
 	public Master(Configuration conf) {
 		this.conf = conf;
