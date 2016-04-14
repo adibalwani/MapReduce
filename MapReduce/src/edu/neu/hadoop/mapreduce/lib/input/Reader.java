@@ -6,10 +6,15 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.nio.file.FileSystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
+
+import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.io.Writable;
+import edu.neu.hadoop.mapreduce.KeyValue;
 
 /**
  * Class to handle read operations from {@link FileSystem}
@@ -17,6 +22,8 @@ import java.util.zip.GZIPInputStream;
  * @author Adib Alwani
  */
 public class Reader {
+	
+	private static final String FOLDER_NAME = "partition/";
 	
 	public interface ReadListener {
 		/**
@@ -112,6 +119,36 @@ public class Reader {
 			}
 		} else {
 			files.add(file);
+		}
+	}
+	
+	/**
+	 * Read the {@link KeyValue} pairs from the {@link FileSystem} in the
+	 * following structure: ./partition/numPartition/fileName 
+	 * 
+	 * @param numPartition Partition number
+	 * @param fileName Name of the file
+	 * @param conf Configuration object
+	 */
+	public void read(int numPartition, String fileName, Configuration conf) {
+		String folderUri = FOLDER_NAME + String.valueOf(numPartition) + "/";
+		String uri = folderUri + fileName;
+		File file = new File(uri);
+		Class<?> mapOutputKeyClass = conf.getMapOutputKeyClass();
+		Class<?> mapOutputValueClass = conf.getMapOutputValueClass();
+		
+		try (
+			ObjectInputStream inputStream = 
+				new ObjectInputStream(new FileInputStream(file));
+		) {
+			while (inputStream.available() != 0) {
+				Writable key = (Writable) mapOutputKeyClass.newInstance();
+				Writable value = (Writable) mapOutputValueClass.newInstance();
+				key.readFields(inputStream);
+				value.readFields(inputStream);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

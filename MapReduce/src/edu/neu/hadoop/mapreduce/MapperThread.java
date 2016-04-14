@@ -4,7 +4,7 @@ import edu.neu.hadoop.conf.Configuration;
 import edu.neu.hadoop.io.Text;
 
 /**
- * Thread class to spawn a new Mapper Implementation.
+ * Thread class to spawn a new {@link Mapper} Implementation.
  * Call {@link Mapper#map(Object, Text, edu.neu.hadoop.mapreduce.Mapper.Context)} on
  * each input line, partition the emitted data (if any), sort and spill onto the
  * disk

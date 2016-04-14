@@ -28,9 +28,12 @@ public class Master {
 	public boolean submitJob() {
 		System.out.println("Master Started");
 		MapperThread mapTask = new MapperThread(conf);
+		ReducerThread reduceTask = new ReducerThread(conf);
 		mapTask.start();
 		try {
 			mapTask.join();
+			reduceTask.start();
+			reduceTask.join();
 			return true;
 		} catch (InterruptedException e) {
 			return false;

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.io.Text;
 import edu.neu.hadoop.mapreduce.lib.output.Writer;
 import edu.neu.hadoop.mapreduce.lib.partition.HashPartitioner;
 
@@ -39,6 +40,7 @@ public class MapContext extends Context {
 			partitioner.getPartition(key, value, numPartitions)
 		);
 		list.add(new KeyValue(key, value));
+		
 	}
 	
 	/**
