@@ -26,6 +26,7 @@ public class Master {
 	 * @return true, iff the job was successfully executed. False, otherwise
 	 */
 	public boolean submitJob() {
+		System.out.println("Master Started");
 		MapperThread mapTask = new MapperThread(conf);
 		mapTask.start();
 		try {

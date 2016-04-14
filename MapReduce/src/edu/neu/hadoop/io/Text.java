@@ -32,15 +32,14 @@ public class Text implements Writable, Comparable<Text> {
 
 	@Override
 	public int compareTo(Text o) {
-		return this.value.compareTo(o.getValue());
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
+		return this.value.compareTo(o.get());
 	}
 	
+	public void set(String value) {
+		this.value = value;
+	}
+
+	public String get() {
+		return value;
+	}
 }

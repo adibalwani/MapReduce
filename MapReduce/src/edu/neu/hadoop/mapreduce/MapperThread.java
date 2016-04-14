@@ -24,6 +24,7 @@ public class MapperThread extends Thread {
 
 	@Override
 	public void run() {
+		System.out.println("Mapper Started");
 		try {
 			MapContext mapContext = new MapContext(conf);
 			Mapper mapper = (Mapper) Class.forName(mapperClass.getName()).newInstance();
@@ -33,5 +34,6 @@ public class MapperThread extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("Mapper Ended");
 	}
 }

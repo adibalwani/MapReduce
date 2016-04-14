@@ -32,15 +32,14 @@ public class BooleanWritable implements Writable, Comparable<BooleanWritable> {
 
 	@Override
 	public int compareTo(BooleanWritable o) {
-		return Boolean.compare(this.value, o.getValue());
+		return Boolean.compare(this.value, o.get());
 	}
 
-	public boolean getValue() {
+	public boolean get() {
 		return value;
 	}
 
-	public void setValue(boolean value) {
+	public void set(boolean value) {
 		this.value = value;
 	}
-	
 }

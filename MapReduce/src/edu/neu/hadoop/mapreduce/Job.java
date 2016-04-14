@@ -76,6 +76,16 @@ public class Job {
 	}
 	
 	/**
+	 * Set the {@link Reducer} for the job.
+	 * 
+	 * @param cls the <code>Reducer</code> to use
+	 */
+	public void setReducerClass(Class<? extends Reducer> cls)
+			throws IllegalStateException {
+		conf.setReducerClass(cls);
+	}
+	
+	/**
 	 * Set the key class for the job output data.
 	 * 
 	 * @param theClass the key class for the job output data.

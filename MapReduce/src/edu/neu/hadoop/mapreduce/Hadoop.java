@@ -2,6 +2,9 @@ package edu.neu.hadoop.mapreduce;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.jar.JarFile;
 
 
@@ -13,7 +16,7 @@ import java.util.jar.JarFile;
 public class Hadoop {
 
 	public static void main(String[] args) throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			IllegalAccessException, ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
 		
 		if (args.length < 3) {
 			System.out.println("Run as: Hadoop [Program] [input path] [output path]");
@@ -23,8 +26,8 @@ public class Hadoop {
 		String mainClassName = null;
 		
 		// Check whether JAR or Class file is provided
-		if (args[1].contains(".jar")) {
-			String jarFileName = args[1];
+		if (args[0].contains(".jar")) {
+			String jarFileName = args[0];
 
 			try (
 				JarFile jarFile = new JarFile(new File(jarFileName));
@@ -37,9 +40,13 @@ public class Hadoop {
 				e.printStackTrace();
 			}	 
 		} else {
-			 mainClassName = args[1];
+			 mainClassName = args[0];
 		}
 		
-		Class.forName(mainClassName).newInstance();
+		Class<?> cls = Class.forName(mainClassName);
+		Method meth = cls.getMethod("main", String[].class);
+		meth.invoke(null, (Object) Arrays.copyOfRange(args, 1, args.length));
+		//Class.forName(mainClassName).newInstance();
+		System.out.println("Starting Map Reduce Job");
 	}
 }

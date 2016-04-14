@@ -15,7 +15,7 @@ public abstract class Context {
 	/**
 	 * Data emitted by either {@link Mapper} or {@link Reducer}
 	 */
-	 <KEYOUT, VALUEOUT> void write(KEYOUT key, VALUEOUT value) { }
+	 public <KEYOUT, VALUEOUT> void write(KEYOUT key, VALUEOUT value) { }
 
 	public Path[] getInputPaths() {
 		return inputPaths;

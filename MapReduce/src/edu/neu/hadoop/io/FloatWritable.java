@@ -32,16 +32,14 @@ public class FloatWritable implements Writable, Comparable<FloatWritable> {
 
 	@Override
 	public int compareTo(FloatWritable o) {
-		return Float.compare(this.value, o.getValue());
+		return Float.compare(this.value, o.get());
 	}
 
-	public float getValue() {
+	public float get() {
 		return value;
 	}
 
-	public void setValue(float value) {
+	public void set(float value) {
 		this.value = value;
 	}
-
-
 }

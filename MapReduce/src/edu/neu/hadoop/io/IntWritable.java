@@ -32,14 +32,14 @@ public class IntWritable implements Writable, Comparable<IntWritable> {
 
 	@Override
 	public int compareTo(IntWritable o) {
-		return Integer.compare(this.value, o.getValue());
+		return Integer.compare(this.value, o.get());
 	}
 
-	public int getValue() {
+	public int get() {
 		return value;
 	}
 
-	public void setValue(int value) {
+	public void set(int value) {
 		this.value = value;
 	}
 }

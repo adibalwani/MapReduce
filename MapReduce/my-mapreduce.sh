@@ -8,5 +8,4 @@ if [ $# -ne 3 ]; then
 fi
 
 # Start Program
-make find_class_files
-java -cp .:@classes.txt bin/edu/neu/hadoop/mapreduce/Hadoop $1 $2 $3
+java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.Hadoop $1 $2 $3
