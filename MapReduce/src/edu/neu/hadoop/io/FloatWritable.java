@@ -39,4 +39,9 @@ public class FloatWritable implements Writable, Comparable<FloatWritable> {
 		return value;
 	}
 
+	public void setValue(float value) {
+		this.value = value;
+	}
+
+
 }

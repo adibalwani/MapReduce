@@ -38,4 +38,9 @@ public class BooleanWritable implements Writable, Comparable<BooleanWritable> {
 	public boolean getValue() {
 		return value;
 	}
+
+	public void setValue(boolean value) {
+		this.value = value;
+	}
+	
 }

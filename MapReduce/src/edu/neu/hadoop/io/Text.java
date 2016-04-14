@@ -38,4 +38,9 @@ public class Text implements Writable, Comparable<Text> {
 	public String getValue() {
 		return value;
 	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
 }
