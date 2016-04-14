@@ -26,4 +26,4 @@ run_word_count: compile make_jar compile_word_count
 ########################## Clean ################################
 
 clean:
-	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition
+	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output

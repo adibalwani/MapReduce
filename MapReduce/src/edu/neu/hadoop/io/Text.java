@@ -45,6 +45,15 @@ public class Text implements Writable, Comparable<Text> {
 		return value;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Writable) {
+			Text o = (Text) obj;
+			return o.value.equals(this.value);
+		}
+		return super.equals(obj);
+	}
+	
 	public void set(String value) {
 		this.value = value;
 	}

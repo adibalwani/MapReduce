@@ -1,7 +1,8 @@
 package edu.neu.hadoop.mapreduce;
 
 import java.io.IOException;
-import java.util.Iterator;
+
+import edu.neu.hadoop.mapreduce.lib.input.FileIterator;
 
 
 /**
@@ -44,23 +45,18 @@ public class Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 	 * Advanced application writers can use the
 	 * {@link #run(org.apache.hadoop.mapreduce.Reducer.Context)} method to
 	 * control how the reduce task works.
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public void run(Context context) throws IOException, InterruptedException {
+	@SuppressWarnings("unchecked")
+	public void run(Context context) throws IOException, InterruptedException,
+			InstantiationException, IllegalAccessException {
 		setup(context);
-		/*
-		try {
-			while (context.nextKey()) {
-				reduce(context.getCurrentKey(), context.getValues(), context);
-				// If a back up store is used, reset it
-				Iterator<VALUEIN> iter = context.getValues().iterator();
-				if (iter instanceof ReduceContext.ValueIterator) {
-					((ReduceContext.ValueIterator<VALUEIN>) iter)
-							.resetBackupStore();
-				}
-			}
-		} finally {
-			
-		}*/
+		FileIterator iterator = context.getFileIterator();
+		while (iterator.hasNext()) {
+			Iterable<VALUEIN> values = (Iterable<VALUEIN>) iterator.next();
+			reduce((KEYIN) iterator.getKey(), values, context);
+		}
 		cleanup(context);
 	}
 }

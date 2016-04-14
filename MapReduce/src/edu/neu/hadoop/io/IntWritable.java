@@ -34,6 +34,20 @@ public class IntWritable implements Writable, Comparable<IntWritable> {
 	public int compareTo(IntWritable o) {
 		return Integer.compare(this.value, o.get());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Writable) {
+			IntWritable o = (IntWritable) obj;
+			return o.value == this.value;
+		}
+		return super.equals(obj);
+	}
+	
+	@Override
+	public String toString() {
+		return String.valueOf(value);
+	}
 
 	public int get() {
 		return value;

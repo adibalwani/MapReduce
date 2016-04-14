@@ -1,7 +1,6 @@
 package edu.neu.hadoop.mapreduce;
 
 import edu.neu.hadoop.conf.Configuration;
-import edu.neu.hadoop.mapreduce.lib.input.Reader;
 
 /**
  * Thread class to spawn a new {@link Reducer} Implementation.
@@ -22,8 +21,14 @@ public class ReducerThread extends Thread {
 	@Override
 	public void run() {
 		System.out.println("Reducer Started");
-		Reader reader = new Reader();
-		reader.readFile(0, "Thread-0", conf);
+		try {
+			ReduceContext reduceContext = new ReduceContext(conf);
+			Reducer reducer = (Reducer) Class.forName(reducerClass.getName()).newInstance();
+			reducer.run(reduceContext);
+			reduceContext.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		System.out.println("Reducer Ended");
 	}
 }

@@ -35,6 +35,20 @@ public class BooleanWritable implements Writable, Comparable<BooleanWritable> {
 		return Boolean.compare(this.value, o.get());
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Writable) {
+			BooleanWritable o = (BooleanWritable) obj;
+			return o.value == this.value;
+		}
+		return super.equals(obj);
+	}
+	
+	@Override
+	public String toString() {
+		return String.valueOf(value);
+	}
+
 	public boolean get() {
 		return value;
 	}

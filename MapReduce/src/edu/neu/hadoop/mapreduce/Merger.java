@@ -52,14 +52,14 @@ public class Merger {
 				inputStream[i] = new ObjectInputStream(new FileInputStream(files[i]));
 			}
 			
-			while (hasMoreData) {
+			/*while (hasMoreData) {
 				
 			}
 			
 			Writable key = (Writable) mapOutputKeyClass.newInstance();
 			Writable value = (Writable) mapOutputValueClass.newInstance();
 			key.readFields(inputStream);
-			value.readFields(inputStream);
+			value.readFields(inputStream);*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

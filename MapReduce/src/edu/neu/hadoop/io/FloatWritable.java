@@ -34,6 +34,20 @@ public class FloatWritable implements Writable, Comparable<FloatWritable> {
 	public int compareTo(FloatWritable o) {
 		return Float.compare(this.value, o.get());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Writable) {
+			FloatWritable o = (FloatWritable) obj;
+			return o.value == this.value;
+		}
+		return super.equals(obj);
+	}
+	
+	@Override
+	public String toString() {
+		return String.valueOf(value);
+	}
 
 	public float get() {
 		return value;
