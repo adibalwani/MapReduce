@@ -37,6 +37,7 @@ public class Merger {
 	 */
 	public void merge(int numPartition, String fileName) {
 		String folderUri = Constants.PARTITION_FOLDER_NAME + String.valueOf(numPartition) + "/";
+		String minimum="";
 		File[] files = new File(folderUri).listFiles();
 		Class<?> mapOutputKeyClass = conf.getMapOutputKeyClass();
 		Class<?> mapOutputValueClass = conf.getMapOutputValueClass();
@@ -52,11 +53,41 @@ public class Merger {
 				inputStream[i] = new ObjectInputStream(new FileInputStream(files[i]));
 			}
 			
-			/*while (hasMoreData) {
-				
-			}
 			
-			Writable key = (Writable) mapOutputKeyClass.newInstance();
+			int checkForEOF=files.length;
+			int singleIteration=0;
+			int filePointer=0;
+			
+			while (checkForEOF>0) {
+			
+			key[singleIteration] = (Writable) mapOutputKeyClass.newInstance();
+			value[singleIteration] = (Writable) mapOutputValueClass.newInstance();
+			key[singleIteration].readFields(inputStream[singleIteration]);
+			value[singleIteration].readFields(inputStream[singleIteration]);
+			if(key[singleIteration]==null)
+			{
+				checkForEOF=checkForEOF-1;
+			}
+			if(singleIteration==files.length)
+			{
+				checkForEOF=files.length;
+				singleIteration=0;
+				inputStream[filePointer].readLine();
+				filePointer=0;
+			}
+			if(singleIteration==0)
+			{
+				minimum=key[singleIteration].toString();
+			}
+			String individualKey=key[singleIteration].toString();
+			if(minimum.compareTo(individualKey)>1)
+			{
+				minimum=individualKey;
+				filePointer=singleIteration;
+			}
+		}
+			
+	/*		Writable key = (Writable) mapOutputKeyClass.newInstance();
 			Writable value = (Writable) mapOutputValueClass.newInstance();
 			key.readFields(inputStream);
 			value.readFields(inputStream);*/
