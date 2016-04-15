@@ -15,7 +15,8 @@ import edu.neu.hadoop.mapreduce.Constants;
 import edu.neu.hadoop.mapreduce.KeyValue;
 
 /**
- * 
+ * An Utility class used to read from {@link FileSystem} and provide an iterator
+ * over values for key
  * 
  * @author Adib Alwani
  */
