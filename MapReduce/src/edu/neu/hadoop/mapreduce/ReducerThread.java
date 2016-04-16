@@ -22,6 +22,8 @@ public class ReducerThread extends Thread {
 	public void run() {
 		System.out.println("Reducer Started");
 		try {
+			Merger merger = new Merger(conf);
+			merger.merge(0, Constants.MERGED_FILE_NAME);
 			ReduceContext reduceContext = new ReduceContext(conf);
 			Reducer reducer = (Reducer) Class.forName(reducerClass.getName()).newInstance();
 			reducer.run(reduceContext);

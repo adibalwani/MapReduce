@@ -23,7 +23,7 @@ public class ReduceContext extends Context {
 	public ReduceContext(Configuration conf) throws FileNotFoundException,
 			InstantiationException, IllegalAccessException, IOException {
 		this.conf = conf;
-		this.iterator = new FileIterator(0, "Thread-0", conf);
+		this.iterator = new FileIterator(0, Constants.MERGED_FILE_NAME, conf);
 		String folderUri = conf.getOutputPath().getPath() + "/";
 		File folder = new File(folderUri);
 		if (!folder.exists()) {

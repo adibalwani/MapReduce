@@ -42,7 +42,7 @@ public class Reader {
 		addFiles(new File(fileName), files);
 
 		for (File file : files) {
-			if (file.getName().contains(".tar")) {
+			if (file.getName().contains(".gz")) {
 				readGZIPFile(file, listener);
 			} else {
 				readFile(file, listener);

@@ -37,60 +37,40 @@ public class Merger {
 	 */
 	public void merge(int numPartition, String fileName) {
 		String folderUri = Constants.PARTITION_FOLDER_NAME + String.valueOf(numPartition) + "/";
-		String minimum="";
+		String uri = folderUri + fileName;
 		File[] files = new File(folderUri).listFiles();
 		Class<?> mapOutputKeyClass = conf.getMapOutputKeyClass();
 		Class<?> mapOutputValueClass = conf.getMapOutputValueClass();
 		ObjectInputStream[] inputStream = new ObjectInputStream[files.length];
 		Writable[] key = new Writable[files.length];
 		Writable[] value = new Writable[files.length];
+		int filesRead = 0;
 		
 		try (
 			ObjectOutputStream outputStream = 
-				new ObjectOutputStream(new FileOutputStream(new File(fileName)));
+				new ObjectOutputStream(new FileOutputStream(new File(uri)));
 		) {
 			for (int i = 0; i < files.length; i++) {
 				inputStream[i] = new ObjectInputStream(new FileInputStream(files[i]));
+				key[i] = (Writable) mapOutputKeyClass.newInstance();
+				value[i] = (Writable) mapOutputValueClass.newInstance();
+				key[i].readFields(inputStream[i]);
+				value[i].readFields(inputStream[i]);
 			}
 			
-			
-			int checkForEOF=files.length;
-			int singleIteration=0;
-			int filePointer=0;
-			
-			while (checkForEOF>0) {
-			
-			key[singleIteration] = (Writable) mapOutputKeyClass.newInstance();
-			value[singleIteration] = (Writable) mapOutputValueClass.newInstance();
-			key[singleIteration].readFields(inputStream[singleIteration]);
-			value[singleIteration].readFields(inputStream[singleIteration]);
-			if(key[singleIteration]==null)
-			{
-				checkForEOF=checkForEOF-1;
+			while (filesRead != files.length) {
+				int min = min(key);
+				key[min].write(outputStream);
+				value[min].write(outputStream);
+				if (inputStream[min].available() != 0) {
+					key[min].readFields(inputStream[min]);
+					value[min].readFields(inputStream[min]);
+				} else {
+					key[min] = null;
+					value[min] = null;
+					filesRead++;
+				}
 			}
-			if(singleIteration==files.length)
-			{
-				checkForEOF=files.length;
-				singleIteration=0;
-				inputStream[filePointer].readLine();
-				filePointer=0;
-			}
-			if(singleIteration==0)
-			{
-				minimum=key[singleIteration].toString();
-			}
-			String individualKey=key[singleIteration].toString();
-			if(minimum.compareTo(individualKey)>1)
-			{
-				minimum=individualKey;
-				filePointer=singleIteration;
-			}
-		}
-			
-	/*		Writable key = (Writable) mapOutputKeyClass.newInstance();
-			Writable value = (Writable) mapOutputValueClass.newInstance();
-			key.readFields(inputStream);
-			value.readFields(inputStream);*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -102,5 +82,22 @@ public class Merger {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private int min(Writable[] key) {
+		int min = 0;
+		
+		for (int i = 1; i < key.length; i++) {
+			if (key[i] == null) {
+				continue;
+			}
+			if ((key[min] == null) ||
+					((Comparable<Writable>) key[i]).compareTo(key[min]) < 0) {
+				min = i;
+			}
+		}
+		
+		return min;
 	}
 }

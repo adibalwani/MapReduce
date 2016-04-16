@@ -27,8 +27,8 @@ public class Master {
 		System.out.println("Master Started");
 		MapperThread mapTask = new MapperThread(conf);
 		ReducerThread reduceTask = new ReducerThread(conf);
-		mapTask.start();
 		try {
+			mapTask.start();
 			mapTask.join();
 			reduceTask.start();
 			reduceTask.join();

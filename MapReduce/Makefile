@@ -16,6 +16,9 @@ compile: clean find_java_files
 compile_word_count:
 	javac -cp .:hadoop.jar -d . test/WordCount/WordCount.java
 
+compile_assignment_2:
+	javac -cp .:hadoop.jar -d . test/Ass2/ClusterAnalysis.java
+
 make_jar:
 	jar cvf hadoop.jar -C bin .
 
