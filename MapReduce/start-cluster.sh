@@ -42,4 +42,13 @@ sleep 6
 # python transferDNS.py
 # sh copy.sh
 
+# Creating Hadoop Jar to upload on ec2 instances.
+find src -name "*.java" > javas.txt
+rm -rf bin hadoop.jar
+mkdir bin
+javac -d bin @javas.txt
+sleep 20
+jar cvf hadoop.jar -C bin .
+
+# User setup Complete.
 echo "Set Up Completed"
