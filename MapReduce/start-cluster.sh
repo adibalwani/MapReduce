@@ -39,8 +39,6 @@ cp ~/.aws/credentials ./
 sleep 6
 
 # python chunk.py
-# python transferDNS.py
-# sh copy.sh
 
 # Creating Hadoop Jar to upload on ec2 instances.
 find src -name "*.java" > javas.txt
@@ -50,5 +48,8 @@ javac -d bin @javas.txt
 sleep 20
 jar cvf hadoop.jar -C bin .
 
+
+# python transferDNS.py
+# sh copy.sh
 # User setup Complete.
 echo "Set Up Completed"
