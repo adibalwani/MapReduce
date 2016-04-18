@@ -7,7 +7,8 @@ import time
 import commands
 
 lines = 0
-path=[]
+path=[]					
+
 with open('original-dns', 'r+') as fm:
 	for line in fm:
 		server = "ec2-user@" + str(line)[:-1]
@@ -35,6 +36,7 @@ with open('original-dns', 'r+') as fm:
 		src = server + ":~/"
 		path.append(src)
 		lines += 1
+
 f=1
 for j in range(0,lines):
 	with open('original-dns', 'r+') as fd:
@@ -46,7 +48,7 @@ for j in range(0,lines):
 				f1.write(line[:-1] + "\n")	
 		var += 1
 		f1.close()
-		call(["scp", "-i", "ec2-key.pem", "instance-dns","s3data"+str(f), "download.py", "Makefile", "node.jar", path[j]])
+		call(["scp", "-i", "ec2-key.pem", "instance-dns","s3data"+str(f), "download.py", "Makefile", "hadoop.jar", path[j]])
 		f=f+1
 		time.sleep(2)
 	fd.close()
