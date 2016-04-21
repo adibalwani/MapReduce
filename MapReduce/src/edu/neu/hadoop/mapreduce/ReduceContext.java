@@ -32,7 +32,7 @@ public class ReduceContext extends Context {
 		if (!folder.exists()) {
 			folder.mkdirs();
 		}
-		String uri = folderUri + Thread.currentThread().getName();
+		String uri = folderUri + hostNameManager.getOwnInstanceNumber();
 		this.outputStream = new PrintWriter(new File(uri));
 	}
 	
