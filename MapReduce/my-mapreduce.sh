@@ -10,19 +10,19 @@ fi
 # Start Program
 # if Pseudo
 # Compile Hadoop here (makefile)
-java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Hadoop $1 $2 $3
+#java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Hadoop $1 $2 $3
 
 #else
 
 # split the data equally and create files containing path of files to be downloaded by each worker node
-python chunk.py $1
+python chunk.py $2
 
-# Copy input split, jars etc to all nodes
-python transferDNS.py
+python copyClassFiles.py
 
 # Tell each node to download files from S3
 sh copy.sh
 
 # Wait for program to end (if needed)
+java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Client $1 $2 $3
 
 #####################################################################

@@ -19,16 +19,24 @@ compile_word_count:
 	javac -cp .:hadoop.jar -d . test/WordCount/WordCount.java
 
 compile_assignment_2:
-	javac -cp .:hadoop.jar -d . test/Ass2/ClusterAnalysis.java
+	javac -cp .:hadoop.jar -d classFiles test/Ass2/ClusterAnalysis.java
 
 form_jar:
 	jar cvf hadoop.jar -C bin .
 
 ########################## Run ##################################
 
-run_word_count: compile compile_word_count
+run_word_count: clean compile compile_word_count
+
+run_assignment_2: clean compile compile_assignment_2
+
+run_master:
+	java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Master
+
+run_worker:
+	java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Worker
 
 ########################## Clean ################################
 
 clean:
-	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output fat_jar
+	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output fat_jar s3data* listfilesFilter listfiles sorteds3data
