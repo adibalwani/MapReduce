@@ -8,6 +8,7 @@ import edu.neu.hadoop.conf.Configuration;
 import edu.neu.hadoop.io.Text;
 import edu.neu.hadoop.mapreduce.lib.output.Writer;
 import edu.neu.hadoop.mapreduce.lib.partition.HashPartitioner;
+import edu.neu.hadoop.mapreduce.network.HostNameManager;
 
 
 /**
@@ -56,8 +57,9 @@ public class MapContext extends Context {
 	 */
 	public void spillToDisk() {
 		Writer writer = new Writer();
+		HostNameManager hostNameManager = new HostNameManager();
 		for (int i = 0; i < numPartitions; i++) {
-			writer.write(partitions.get(i), i, Thread.currentThread().getName());
+			writer.write(partitions.get(i), i, hostNameManager.getOwnHostName());
 		}
 	}
 }
