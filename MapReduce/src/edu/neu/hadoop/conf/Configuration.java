@@ -1,5 +1,7 @@
 package edu.neu.hadoop.conf;
 
+import java.io.Serializable;
+
 import edu.neu.hadoop.fs.Path;
 import edu.neu.hadoop.mapreduce.Mapper;
 import edu.neu.hadoop.mapreduce.Reducer;
@@ -10,8 +12,8 @@ import edu.neu.hadoop.mapreduce.Reducer;
  * 
  * @author Adib Alwani
  */
-@SuppressWarnings("rawtypes")
-public class Configuration {
+@SuppressWarnings({ "rawtypes", "serial" })
+public class Configuration implements Serializable {
 	
 	private Class<? extends Mapper> mapperClass;
 	private Class<? extends Reducer> reducerClass;

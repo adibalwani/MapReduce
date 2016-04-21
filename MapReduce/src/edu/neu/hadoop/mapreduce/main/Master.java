@@ -1,31 +1,23 @@
 package edu.neu.hadoop.mapreduce.main;
 
 import edu.neu.hadoop.mapreduce.Constants;
-import edu.neu.hadoop.mapreduce.lib.input.Reader;
-
+import edu.neu.hadoop.mapreduce.master.MasterThread;
 
 
 /**
- * Main class to run the Map-Reduce framework in Cluster mode
+ * Main class for Cluster's {@link Master} to run the Map-Reduce framework in Cluster mode
  * 
  * @author Adib Alwani
  */
-public class Master implements Reader.ReadListener {
-	
-	private int numOfWorker = -1;
-	
-	public static void main(String args[]) {
-		Master master = new Master();
-		
-		// Get Number of Worker Nodes
-		Reader reader = new Reader();
-		reader.readFileOrDirectory(Constants.DNS_FILE_NAME, master);
-		
-		// 
-	}
+public class Master {
 
-	@Override
-	public void onReadLine(String line) {
-		numOfWorker++;
+	public static void main(String args[]) {
+		try {
+			MasterThread masterThread = new MasterThread(Constants.MASTER_PORT);
+			masterThread.start();
+			masterThread.join();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

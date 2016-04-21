@@ -10,7 +10,7 @@ fi
 # Start Program
 # if Pseudo
 # Compile Hadoop here (makefile)
-java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.Hadoop $1 $2 $3
+java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Hadoop $1 $2 $3
 
 #else
 

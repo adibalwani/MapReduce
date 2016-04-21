@@ -9,9 +9,11 @@ find_java_files:
 find_class_files:
 	find bin -name "*.class" > classes.txt
 
-compile: clean find_java_files
+compile: clean find_java_files compile_map_reduce form_jar
+
+compile_map_reduce:
 	mkdir bin
-	javac -d bin @javas.txt
+	javac -cp "lib/*" -d bin @javas.txt
 
 compile_word_count:
 	javac -cp .:hadoop.jar -d . test/WordCount/WordCount.java
@@ -19,14 +21,14 @@ compile_word_count:
 compile_assignment_2:
 	javac -cp .:hadoop.jar -d . test/Ass2/ClusterAnalysis.java
 
-make_jar:
+form_jar:
 	jar cvf hadoop.jar -C bin .
 
 ########################## Run ##################################
 
-run_word_count: compile make_jar compile_word_count	
+run_word_count: compile compile_word_count
 
 ########################## Clean ################################
 
 clean:
-	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output
+	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output fat_jar
