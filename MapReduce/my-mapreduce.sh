@@ -10,16 +10,18 @@ fi
 # Start Program
 # if Pseudo
 # Compile Hadoop here (makefile)
-java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.Hadoop $1 $2 $3
+java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Hadoop $1 $2 $3
 
 #else
 
+# split the data equally and create files containing path of files to be downloaded by each worker node
+python chunk.py $1
 
-# Copy input split to appropriate workers
+# Copy input split, jars etc to all nodes
+python transferDNS.py
 
-# Copy program to Workers (Jar)
-
-# Ping Master using telnet on 9999
+# Tell each node to download files from S3
+sh copy.sh
 
 # Wait for program to end (if needed)
 
