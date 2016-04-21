@@ -35,7 +35,7 @@ public class Master {
 			HostNameManager hostNameManager = new HostNameManager();
 			List<String> workerNodes = hostNameManager.getWorkerNodes();
 			runMapper(workerNodes);
-			runReducer(workerNodes);
+			//runReducer(workerNodes);
 			return true;
 		} else {
 			// Run in Pseudo mode

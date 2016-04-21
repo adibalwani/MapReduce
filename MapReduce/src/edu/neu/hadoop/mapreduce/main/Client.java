@@ -27,8 +27,10 @@ public class Client {
 		builder.append(args[2]);
 		
 		try {
-			ObjectSocket conn = new ObjectSocket(hostNameManager.getMasterHostName(), 
-					Constants.MAPPER_PORT);
+			ObjectSocket conn = new ObjectSocket(
+				hostNameManager.getMasterHostName(),
+				Constants.MASTER_PORT
+			);
 			conn.write(builder.toString());
 			conn.close();
 		} catch (Exception e) {

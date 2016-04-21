@@ -1,14 +1,11 @@
 package edu.neu.hadoop.mapreduce.master;
 
 import java.io.IOException;
-import java.util.List;
 
 import edu.neu.hadoop.conf.Configuration;
-import edu.neu.hadoop.mapreduce.Constants;
 import edu.neu.hadoop.mapreduce.Mapper;
 import edu.neu.hadoop.mapreduce.Reducer;
 import edu.neu.hadoop.mapreduce.main.Hadoop;
-import edu.neu.hadoop.mapreduce.network.HostNameManager;
 import edu.neu.hadoop.mapreduce.network.ObjectSocket;
 
 
@@ -36,8 +33,6 @@ public class MasterThread extends Thread {
 			while (null != (conn = svr.accept())) {
 				String args = (String) conn.read();
 				Hadoop.main(args.split("\\s+"));
-				runMapper(workerNodes);
-				runReducer(workerNodes);
 				conn.close();
 			}
 		} catch (Exception e) {
