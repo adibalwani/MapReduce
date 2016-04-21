@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import edu.neu.hadoop.conf.Configuration;
 import edu.neu.hadoop.io.Writable;
 import edu.neu.hadoop.mapreduce.lib.input.FileIterator;
+import edu.neu.hadoop.mapreduce.network.HostNameManager;
 
 /**
  * The <code>Context</code> passed on to the {@link Reducer} implementation
@@ -22,8 +23,10 @@ public class ReduceContext extends Context {
 
 	public ReduceContext(Configuration conf) throws FileNotFoundException,
 			InstantiationException, IllegalAccessException, IOException {
+		HostNameManager hostNameManager = new HostNameManager();
 		this.conf = conf;
-		this.iterator = new FileIterator(0, Constants.MERGED_FILE_NAME, conf);
+		this.iterator = new FileIterator(hostNameManager.getOwnInstanceNumber(), 
+				Constants.MERGED_FILE_NAME, conf);
 		String folderUri = conf.getOutputPath().getPath() + "/";
 		File folder = new File(folderUri);
 		if (!folder.exists()) {

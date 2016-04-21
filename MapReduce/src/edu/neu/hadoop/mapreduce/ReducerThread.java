@@ -1,6 +1,7 @@
 package edu.neu.hadoop.mapreduce;
 
 import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.mapreduce.network.HostNameManager;
 
 /**
  * Thread class to spawn a new {@link Reducer} Implementation.
@@ -21,9 +22,11 @@ public class ReducerThread extends Thread {
 	@Override
 	public void run() {
 		System.out.println("Reducer Started");
+		HostNameManager hostNameManager = new HostNameManager();
 		try {
 			Merger merger = new Merger(conf);
-			merger.merge(0, Constants.MERGED_FILE_NAME);
+			merger.merge(hostNameManager.getOwnInstanceNumber(), 
+					Constants.MERGED_FILE_NAME);
 			ReduceContext reduceContext = new ReduceContext(conf);
 			Reducer reducer = (Reducer) Class.forName(reducerClass.getName()).newInstance();
 			reducer.run(reduceContext);

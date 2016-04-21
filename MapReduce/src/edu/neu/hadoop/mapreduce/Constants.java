@@ -1,5 +1,10 @@
 package edu.neu.hadoop.mapreduce;
 
+/**
+ * Constants defined in the Map-Reduce framework
+ * 
+ * @author Adib Alwani
+ */
 public class Constants {
 	
 	public static final String PARTITION_FOLDER_NAME = "partition/";
@@ -11,13 +16,40 @@ public class Constants {
 	public static final int MAPPER_PORT = 10000;
 	public static final int REDUCER_PORT = 10001;
 	
-	// Usage: PARTITION_TO_S3_COMMAND_1 + BUCKETNAME + PARTITION_TO_S3_COMMAND_2
-	public static final String PARTITION_TO_S3_COMMAND_1 = 
-			"aws s3 cp " + PARTITION_FOLDER_NAME + " ";
-	public static final String PARTITION_TO_S3_COMMAND_2 = 
-			" --recursive";
+	public static String s3ToPartition(String bucketPath, int instanceNumber) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("aws s3 cp ");
+		builder.append(bucketPath);
+		builder.append(PARTITION_FOLDER_NAME);
+		builder.append(instanceNumber);
+		builder.append(' ');
+		builder.append(PARTITION_FOLDER_NAME);
+		builder.append(instanceNumber);
+		builder.append(" --recursive");
+		return builder.toString();
+	}
 	
-	public static final String S3_TO_PARTITION_COMMAND = "python getS3.py " + PARTITION_FOLDER_NAME;
+	public static String partitionToS3(String bucketPath) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("aws s3 cp ");
+		builder.append(PARTITION_FOLDER_NAME);
+		builder.append(' ');
+		builder.append(bucketPath);
+		builder.append(PARTITION_FOLDER_NAME);
+		builder.append(" --recursive");
+		return builder.toString();
+	}
+	
+	public static String outputToS3(String bucketPath, String outputFolder) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("aws s3 cp ");
+		builder.append(outputFolder);
+		builder.append(' ');
+		builder.append(bucketPath);
+		builder.append(outputFolder);
+		builder.append(" --recursive");
+		return builder.toString();
+	}
 	
 	private Constants() { }
 }

@@ -54,6 +54,7 @@ public class MapperThread extends Thread {
 		public MapTask(Configuration conf, HostNameManager hostNameManager) {
 			this.conf = conf;
 			this.conf.setInputPath(new Path[] { new Path(Constants.INPUT_FOLDER_NAME) });
+			this.conf.setNumReduceTasks(hostNameManager.getWorkerNodes().size() + 1);
 			this.hostNameManager = hostNameManager;
 		}
 		
@@ -66,13 +67,10 @@ public class MapperThread extends Thread {
 				mapTask.start();
 				mapTask.join();
 				
-				// Send data to S3
+				// Send partition data to S3
 				Runtime runtime = Runtime.getRuntime();
 				Process process = runtime.exec(
-					Constants.PARTITION_TO_S3_COMMAND_1 + 
-					conf.getOutputPath().getPath() + 
-					Constants.PARTITION_TO_S3_COMMAND_2
-				);
+						Constants.partitionToS3(conf.getOutputPath().getBucketPath()));
 				process.waitFor();
 				
 				// Acknowledge Master of task completion

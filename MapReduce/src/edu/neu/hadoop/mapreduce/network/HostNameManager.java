@@ -1,6 +1,7 @@
 package edu.neu.hadoop.mapreduce.network;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class HostNameManager {
 	
 	private List<String> workerNodes;
 	private String ownHostName;
+	private int ownInstanceNumber;
 	private String masterHostName;
 	
 	public HostNameManager() {
@@ -29,11 +31,16 @@ public class HostNameManager {
 	 * Read the DNS and fill the DNS List
 	 */
 	private void readDNSFile() {
+		if (!new File(Constants.DNS_FILE_NAME).exists()) {
+			return;
+		}
+		
 		try (
 			FileReader fileReader = new FileReader(Constants.DNS_FILE_NAME);
 			BufferedReader reader = new BufferedReader(fileReader);
 		) {
 			String currentLine;
+			int instanceNumber = -1;
 				
 			while ((currentLine = reader.readLine()) != null) {
 				String[] line = currentLine.split("\\s+");
@@ -44,9 +51,11 @@ public class HostNameManager {
 					masterHostName = dns;
 				} else if (line.length == 2) {
 					ownHostName = dns;
+					ownInstanceNumber = instanceNumber;
 				} else {
 					workerNodes.add(dns);
 				}
+				instanceNumber++;
 			}
 		} catch (IOException exception) {
 			exception.printStackTrace();
@@ -59,6 +68,10 @@ public class HostNameManager {
 
 	public String getOwnHostName() {
 		return ownHostName;
+	}
+	
+	public int getOwnInstanceNumber() {
+		return ownInstanceNumber;
 	}
 
 	public String getMasterHostName() {
