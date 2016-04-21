@@ -8,13 +8,13 @@ if [ $# -ne 1 ]; then
 fi
 
 # Create EC2 Instances
-aws ec2 run-instances --image-id ami-c229c0a2 --count $1 --instance-type t2.micro --key-name ec2-key2 --security-groups ec2-sec-key > instances
+aws ec2 run-instances --image-id ami-c229c0a2 --count $1 --instance-type t2.medium --key-name ec2-key2 --security-groups ec2-sec-key > instances
 
 # Fetch instanceIds and store
 cat instances | jq -r ".Instances[].InstanceId" > instance-ids
 
 # Fetch DNS and store
-aws ec2 describe-instances --filters "Name=instance-type,Values=t2.micro" | jq -r ".Reservations[].Instances[].PublicDnsName" | sed '/^$/d' > original-dns
+aws ec2 describe-instances --filters "Name=instance-type,Values=t2.medium" | jq -r ".Reservations[].Instances[].PublicDnsName" | sed '/^$/d' > original-dns
 
 while read id
 do
@@ -33,23 +33,35 @@ do
 	done
 done < instance-ids
 
-# copy aws credentials to current directory
+# Copy aws credentials to current directory (IDK why this needed?)
 cp ~/.aws/credentials ./
 
-sleep 6
+# Compile Worker, Master Jar
+
+# Copy AWS credentials, DNSList, Makefile to all nodes
+
+# Copy Master Jar to master
+
+# Copy Worker Jar to worker
+
+# Run make file i.e start threads for all nodes
+
+echo "Set Up Completed"
+#########################################################################################
+
+#sleep 6 #(IDK why this is needed?)
 
 # python chunk.py
 
 # Creating Hadoop Jar to upload on ec2 instances.
-find src -name "*.java" > javas.txt
-rm -rf bin hadoop.jar
-mkdir bin
-javac -d bin @javas.txt
-sleep 20
-jar cvf hadoop.jar -C bin .
+#find src -name "*.java" > javas.txt
+#rm -rf bin hadoop.jar
+#mkdir bin
+#javac -d bin @javas.txt
+#sleep 20
+#jar cvf hadoop.jar -C bin .
 
 
 # python transferDNS.py
 # sh copy.sh
 # User setup Complete.
-echo "Set Up Completed"

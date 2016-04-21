@@ -8,4 +8,19 @@ if [ $# -ne 3 ]; then
 fi
 
 # Start Program
+# if Pseudo
+# Compile Hadoop here (makefile)
 java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.Hadoop $1 $2 $3
+
+#else
+
+
+# Copy input split to appropriate workers
+
+# Copy program to Workers (Jar)
+
+# Ping Master using telnet on 9999
+
+# Wait for program to end (if needed)
+
+#####################################################################

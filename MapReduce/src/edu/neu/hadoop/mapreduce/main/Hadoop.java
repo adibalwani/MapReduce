@@ -1,4 +1,4 @@
-package edu.neu.hadoop.mapreduce;
+package edu.neu.hadoop.mapreduce.main;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.util.jar.JarFile;
 
 
 /**
- * Main class to run the Map-Reduce framework
+ * Main class to run the Map-Reduce framework in Pseudo mode
  * 
  * @author Rachit Puri, Adib Alwani
  */

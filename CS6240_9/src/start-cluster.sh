@@ -8,13 +8,13 @@ if [ $# -ne 1 ]; then
 fi
 
 # Create EC2 Instances
-aws ec2 run-instances --image-id ami-c229c0a2 --count $1 --instance-type m3.large --key-name ec2-key --security-groups ec2-sec-key > instances
+aws ec2 run-instances --image-id ami-c229c0a2 --count $1 --instance-type m3.medium --key-name ec2-key --security-groups ec2-sec-key > instances
 
 # Fetch instanceIds and store
 cat instances | jq -r ".Instances[].InstanceId" > instance-ids
 
 # Fetch DNS and store
-aws ec2 describe-instances --filters "Name=instance-type,Values=m3.large" | jq -r ".Reservations[].Instances[].PublicDnsName" | sed '/^$/d' > original-dns
+aws ec2 describe-instances --filters "Name=instance-type,Values=m3.medium" | jq -r ".Reservations[].Instances[].PublicDnsName" | sed '/^$/d' > original-dns
 
 while read id
 do
