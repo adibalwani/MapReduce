@@ -27,12 +27,19 @@ public class ReduceContext extends Context {
 		this.conf = conf;
 		this.iterator = new FileIterator(hostNameManager.getOwnInstanceNumber(), 
 				Constants.MERGED_FILE_NAME, conf);
-		String folderUri = conf.getOutputPath().getPath() + "/";
+		boolean clusterMode = conf.getOutputPath().getPath().contains("s3");
+		String folderUri;
+		if (clusterMode) {
+			folderUri = Constants.OUTPUT_FOLDER_NAME + "/";
+		} else {
+			folderUri = conf.getOutputPath().getPath() + "/";
+		}
 		File folder = new File(folderUri);
 		if (!folder.exists()) {
 			folder.mkdirs();
 		}
-		String uri = folderUri + hostNameManager.getOwnInstanceNumber();
+		String uri = folderUri + Constants.REDUCER_OUTPUT_FORMAT +
+				hostNameManager.getOwnInstanceNumber();
 		this.outputStream = new PrintWriter(new File(uri));
 	}
 	

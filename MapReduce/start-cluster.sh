@@ -34,7 +34,7 @@ do
 done < instance-ids
 
 # Copy aws credentials to current directory (IDK why this needed?)
-#cp ~/.aws/credentials ./
+cp ~/.aws/credentials ./
 
 # Compile Worker, Master Jar
 #make compile
