@@ -34,16 +34,16 @@ do
 done < instance-ids
 
 # Copy aws credentials to current directory (IDK why this needed?)
-cp ~/.aws/credentials ./
+#cp ~/.aws/credentials ./
 
 # Compile Worker, Master Jar
 #make compile
 
 # Copy AWS credentials, DNSList, Makefile, hadoop.jar to all nodes
-#python transferDNS.py
+python transferDNS.py
 
 # Run make file i.e start threads for all nodes
-#sh runNodes.sh
+sh runNodes.sh
 
 echo "Set Up Completed"
 

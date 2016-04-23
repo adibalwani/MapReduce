@@ -59,7 +59,9 @@ public class MapContext extends Context {
 		Writer writer = new Writer();
 		HostNameManager hostNameManager = new HostNameManager();
 		for (int i = 0; i < numPartitions; i++) {
-			writer.write(partitions.get(i), i, hostNameManager.getOwnHostName());
+			if (!partitions.get(i).isEmpty()) {
+				writer.write(partitions.get(i), i, hostNameManager.getOwnHostName());
+			}
 		}
 	}
 }

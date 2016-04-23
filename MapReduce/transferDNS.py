@@ -51,8 +51,8 @@ with open('original-dns','r+') as fm:
 			src = nodes + ":~/"
 			path.append(src)
 			time.sleep(5)
-			lines = lines+1					
-					
+			lines = lines+1
+			
 
 f = 1
 for j in range(0,lines):

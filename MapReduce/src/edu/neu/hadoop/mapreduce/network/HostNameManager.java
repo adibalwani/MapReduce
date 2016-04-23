@@ -11,7 +11,7 @@ import edu.neu.hadoop.mapreduce.Constants;
 
 
 /**
- * Class used for managing Host names across the network of clusters 
+ * Class used for managing host names across the network of clusters 
  * 
  * @author Adib Alwani
  */
@@ -41,7 +41,7 @@ public class HostNameManager {
 		) {
 			String currentLine;
 			int instanceNumber = -1;
-				
+			
 			while ((currentLine = reader.readLine()) != null) {
 				String[] line = currentLine.split("\\s+");
 				String dns = line[0];

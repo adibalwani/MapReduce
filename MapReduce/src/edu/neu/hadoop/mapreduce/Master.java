@@ -30,15 +30,14 @@ public class Master {
 	 */
 	public boolean submitJob() {
 		System.out.println("Master Started");
-		if (conf.getOutputPath().getPath().contains("s3")) {
-			// Run on Cluster
+		boolean clusterMode = conf.getOutputPath().getPath().contains("s3");
+		if (clusterMode) {
 			HostNameManager hostNameManager = new HostNameManager();
 			List<String> workerNodes = hostNameManager.getWorkerNodes();
 			runMapper(workerNodes);
-			runReducer(workerNodes);
+			//runReducer(workerNodes);
 			return true;
 		} else {
-			// Run in Pseudo mode
 			MapperThread mapTask = new MapperThread(conf);
 			ReducerThread reduceTask = new ReducerThread(conf);
 			try {

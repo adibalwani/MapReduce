@@ -9,6 +9,7 @@ import java.io.IOException;
  * serialization protocol, based on {@link DataInput} and {@link DataOutput}
  * 
  * @author Rushikesh Badami
+ * @modified Adib Alwani
  */
 public class Text implements Writable, Comparable<Text> {
 

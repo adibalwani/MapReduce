@@ -1,5 +1,7 @@
 package edu.neu.hadoop.mapreduce;
 
+import java.nio.file.FileSystem;
+
 /**
  * Constants defined in the Map-Reduce framework
  * 
@@ -29,6 +31,12 @@ public class Constants {
 		return builder.toString();
 	}
 	
+	/**
+	 * AWS command for transferring data from partitions in {@link FileSystem} to S3
+	 * 
+	 * @param bucketPath Bucket Name
+	 * @return Command
+	 */
 	public static String partitionToS3(String bucketPath) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("aws s3 cp ");

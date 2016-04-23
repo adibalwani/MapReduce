@@ -19,6 +19,7 @@ compile_word_count:
 	javac -cp .:hadoop.jar -d . test/WordCount/WordCount.java
 
 compile_assignment_2:
+	mkdir classFiles
 	javac -cp .:hadoop.jar -d classFiles test/Ass2/ClusterAnalysis.java
 
 form_jar:
@@ -39,4 +40,4 @@ run_worker:
 ########################## Clean ################################
 
 clean:
-	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output fat_jar s3data* listfilesFilter listfiles sorteds3data
+	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output fat_jar s3data* listfilesFilter listfiles sorteds3data classFiles
