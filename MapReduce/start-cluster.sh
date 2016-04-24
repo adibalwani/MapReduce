@@ -16,6 +16,9 @@ cat instances | jq -r ".Instances[].InstanceId" > instance-ids
 # Fetch DNS and store
 aws ec2 describe-instances --filters "Name=instance-type,Values=t2.medium" | jq -r ".Reservations[].Instances[].PublicDnsName" | sed '/^$/d' > original-dns
 
+:'
+Below block of code is use spawn requested number instances by clients
+'
 while read id
 do
 	while [ $var -eq 1 ]
@@ -33,14 +36,14 @@ do
 	done
 done < instance-ids
 
-# Copy aws credentials to current directory (IDK why this needed?)
-cp ~/.aws/credentials ./
 
-# Copy AWS credentials, DNSList, Makefile, hadoop.jar to all nodes
-python transferDNS.py
+cp ~/.aws/credentials ./   		# Copy aws credentials to current directory (IDK why this needed?)
 
-# Run make file i.e start threads for all nodes
-sh runNodes.sh
+
+python transferDNS.py			# Copy AWS credentials, DNSList, Makefile, hadoop.jar to all nodes
+
+
+sh runNodes.sh				# Run make file i.e start threads for all nodes
 
 echo "Set Up Completed"
 
