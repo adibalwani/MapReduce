@@ -17,15 +17,15 @@ import java.io.IOException;
  * 
  * @author Adib Alwani
  */
-public interface Writable {
-	
+public abstract class Writable implements Cloneable {
+
 	/**
 	 * Serialize the fields of this object to <code>out</code>
 	 * 
 	 * @param out <code>DataOuput</code> to serialize this object into
 	 * @throws IOException
 	 */
-	void write(DataOutput out) throws IOException;
+	public void write(DataOutput out) throws IOException { }
 
 	/**
 	 * Deserialize the fields of this object from <code>in</code>
@@ -33,5 +33,10 @@ public interface Writable {
 	 * @param in <code>DataInput</code> to deserialize this object from
 	 * @throws IOException
 	 */
-	void readFields(DataInput in) throws IOException;
+	public void readFields(DataInput in) throws IOException { }
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
 }

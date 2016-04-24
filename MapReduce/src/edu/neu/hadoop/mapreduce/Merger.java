@@ -34,11 +34,16 @@ public class Merger {
 	 * 
 	 * @param numPartition Partition number
 	 * @param fileName Merged file name
+	 * @return true iff merger was successful. False, otherwise
 	 */
-	public void merge(int numPartition, String fileName) {
+	public boolean merge(int numPartition, String fileName) {
 		String folderUri = Constants.PARTITION_FOLDER_NAME + String.valueOf(numPartition) + "/";
 		String uri = folderUri + fileName;
 		File[] files = new File(folderUri).listFiles();
+		if (files.length == 0) {
+			return false;
+		}
+		
 		Class<?> mapOutputKeyClass = conf.getMapOutputKeyClass();
 		Class<?> mapOutputValueClass = conf.getMapOutputValueClass();
 		ObjectInputStream[] inputStream = new ObjectInputStream[files.length];
@@ -82,6 +87,8 @@ public class Merger {
 				e.printStackTrace();
 			}
 		}
+		
+		return true;
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -25,12 +25,14 @@ public class ReducerThread extends Thread {
 		HostNameManager hostNameManager = new HostNameManager();
 		try {
 			Merger merger = new Merger(conf);
-			merger.merge(hostNameManager.getOwnInstanceNumber(), 
+			boolean merge = merger.merge(hostNameManager.getOwnInstanceNumber(), 
 					Constants.MERGED_FILE_NAME);
-			ReduceContext reduceContext = new ReduceContext(conf);
-			Reducer reducer = (Reducer) Class.forName(reducerClass.getName()).newInstance();
-			reducer.run(reduceContext);
-			reduceContext.close();
+			if (merge) {
+				ReduceContext reduceContext = new ReduceContext(conf);
+				Reducer reducer = (Reducer) Class.forName(reducerClass.getName()).newInstance();
+				reducer.run(reduceContext);
+				reduceContext.close();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

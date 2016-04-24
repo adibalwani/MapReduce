@@ -14,18 +14,24 @@ find_java_files:
 find_class_files:
 	find bin -name "*.class" > classes.txt
 
-compile: clean find_java_files compile_map_reduce form_jar
+compile: find_java_files compile_map_reduce form_jar
 
 compile_map_reduce:
 	mkdir bin
 	javac -d bin @javas.txt
+	rm -rf javas.txt
 
 compile_word_count:
-	javac -cp .:hadoop.jar -d . test/WordCount/WordCount.java
+	mkdir tmp
+	javac -cp .:hadoop.jar -d tmp test/WordCount/WordCount.java
+	jar cvf WordCount.jar -C tmp .
+	rm -rf tmp
 
 compile_assignment_2:
-	mkdir classFiles
-	javac -cp .:hadoop.jar -d classFiles test/Ass2/ClusterAnalysis.java
+	mkdir tmp
+	javac -cp .:hadoop.jar -d tmp test/Ass2/ClusterAnalysis.java
+	jar cvf ClusterAnalysis.jar -C tmp .
+	rm -rf tmp
 
 compile_assignment_7:
 	mkdir classFiles
@@ -51,4 +57,7 @@ run_worker:
 ########################## Clean ################################
 
 clean:
-	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output fat_jar s3data* listfilesFilter listfiles sorteds3data classFiles
+	rm -rf bin classes.txt javas.txt hadoop.jar *.class partition output fat_jar s3data* listfilesFilter listfiles sorteds3data classFiles instances instance-ids instance-dns credentials original-dns job.jar
+
+clean_submission:
+	rm -rf all alice.txt

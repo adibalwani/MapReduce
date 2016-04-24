@@ -9,9 +9,11 @@ for f in os.listdir('.'):
 	if re.match('s3data', f):
 		filename = f
 		print filename
-
-with open(filename, 'r') as fd:
-	for line in fd:
-		call(["aws", "s3", "cp", line[:-1], "./input"])
+try :
+	with open(filename, 'r') as fd:
+		for line in fd:
+			call(["aws", "s3", "cp", str(line).replace("\n",""), "./input"])
+except:
+	print "No Input data"
 
 fd.close()

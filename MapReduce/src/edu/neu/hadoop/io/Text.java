@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author Rushikesh Badami
  * @modified Adib Alwani
  */
-public class Text implements Writable, Comparable<Text> {
+public class Text extends Writable implements Comparable<Text> {
 
 	private String value;
 	
@@ -53,6 +53,11 @@ public class Text implements Writable, Comparable<Text> {
 			return o.value.equals(this.value);
 		}
 		return super.equals(obj);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new Text(value);
 	}
 	
 	public void set(String value) {

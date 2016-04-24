@@ -23,6 +23,7 @@ public class HostNameManager {
 	private String masterHostName;
 	
 	public HostNameManager() {
+		ownInstanceNumber = 0;
 		workerNodes = new ArrayList<String>();
 		readDNSFile();
 	}

@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author Rushikesh Badami
  * @modified Adib Alwani
  */
-public class BooleanWritable implements Writable, Comparable<BooleanWritable> {
+public class BooleanWritable extends Writable implements Comparable<BooleanWritable> {
 
 	private boolean value;
 	
@@ -48,6 +48,11 @@ public class BooleanWritable implements Writable, Comparable<BooleanWritable> {
 	@Override
 	public String toString() {
 		return String.valueOf(value);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new BooleanWritable(value); 
 	}
 
 	public boolean get() {

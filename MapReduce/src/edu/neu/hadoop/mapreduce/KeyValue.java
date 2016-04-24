@@ -1,5 +1,7 @@
 package edu.neu.hadoop.mapreduce;
 
+import edu.neu.hadoop.io.Writable;
+
 
 /**
  * POJO to store key-value pair
@@ -13,8 +15,14 @@ public class KeyValue<KEY, VALUE> implements Comparable<KeyValue<KEY, VALUE>> {
 	private VALUE value;
 
 	public KeyValue(KEY key, VALUE value) {
-		this.key = key;
-		this.value = value;
+		Writable writableKey = (Writable) key;
+		Writable writableValue = (Writable) value;
+		try {
+			this.key = (KEY) writableKey.clone();
+			this.value = (VALUE) writableValue.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

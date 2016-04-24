@@ -33,6 +33,7 @@ public class MasterThread extends Thread {
 			while (null != (conn = svr.accept())) {
 				String args = (String) conn.read();
 				Hadoop.main(args.split("\\s+"));
+				conn.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

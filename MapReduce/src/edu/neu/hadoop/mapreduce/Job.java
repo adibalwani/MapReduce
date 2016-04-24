@@ -84,6 +84,14 @@ public class Job {
 			throws IllegalStateException {
 		conf.setReducerClass(cls);
 	}
+
+	/**
+	 * Set the combiner class for the job.
+	 * 
+	 * @param cls the combiner to use
+	 */
+	public void setCombinerClass(Class<? extends Reducer> cls) 
+			throws IllegalStateException { }
 	
 	/**
 	 * Set the key class for the job output data.
@@ -136,6 +144,10 @@ public class Job {
 	 * @return true if the job succeeded
 	 */
 	public boolean waitForCompletion(boolean verbose) throws ClassNotFoundException {
+		if (conf.getMapOutputKeyClass() == null) {
+			conf.setMapOutputKeyClass(conf.getOutputKeyClass());
+			conf.setMapOutputValueClass(conf.getOutputValueClass());
+		}
 		Master master = new Master(conf);
 		return master.submitJob();
 	}

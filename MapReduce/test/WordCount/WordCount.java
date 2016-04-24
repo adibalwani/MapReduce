@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import edu.neu.hadoop.conf.Configuration;
-import edu.neu.hadoop.mapreduce.Context;
 import edu.neu.hadoop.fs.Path;
 import edu.neu.hadoop.io.IntWritable;
 import edu.neu.hadoop.io.Text;
@@ -11,6 +10,7 @@ import edu.neu.hadoop.mapreduce.Mapper;
 import edu.neu.hadoop.mapreduce.Reducer;
 import edu.neu.hadoop.mapreduce.lib.input.FileInputFormat;
 import edu.neu.hadoop.mapreduce.lib.output.FileOutputFormat;
+import edu.neu.hadoop.mapreduce.Context;
 
 public class WordCount {
 
@@ -24,9 +24,7 @@ public class WordCount {
                     ) throws IOException, InterruptedException {
       StringTokenizer itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
-        Text word = new Text();
         word.set(itr.nextToken());
-
         context.write(word, one);
       }
     }
@@ -34,11 +32,11 @@ public class WordCount {
 
   public static class IntSumReducer
        extends Reducer<Text,IntWritable,Text,IntWritable> {
+    private IntWritable result = new IntWritable();
 
     public void reduce(Text key, Iterable<IntWritable> values,
                        Context context
                        ) throws IOException, InterruptedException {
-      IntWritable result = new IntWritable();
       int sum = 0;
       for (IntWritable val : values) {
         sum += val.get();
@@ -53,9 +51,8 @@ public class WordCount {
     Job job = Job.getInstance(conf, "word count");
     job.setJarByClass(WordCount.class);
     job.setMapperClass(TokenizerMapper.class);
+    job.setCombinerClass(IntSumReducer.class);
     job.setReducerClass(IntSumReducer.class);
-    job.setMapOutputKeyClass(Text.class);
-    job.setMapOutputValueClass(IntWritable.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     FileInputFormat.addInputPath(job, new Path(args[0]));

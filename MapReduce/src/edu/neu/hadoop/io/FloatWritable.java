@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author Rushikesh Badami
  * @modified Adib Alwani
  */
-public class FloatWritable implements Writable, Comparable<FloatWritable> {
+public class FloatWritable extends Writable implements Comparable<FloatWritable> {
 
 	private float value;
 
@@ -48,6 +48,11 @@ public class FloatWritable implements Writable, Comparable<FloatWritable> {
 	@Override
 	public String toString() {
 		return String.valueOf(value);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new FloatWritable(value);
 	}
 
 	public float get() {
