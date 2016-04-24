@@ -1,8 +1,10 @@
 package edu.neu.hadoop.mapreduce.worker;
 
+import java.io.File;
 import java.io.IOException;
 
 import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.fs.Cleaner;
 import edu.neu.hadoop.mapreduce.Constants;
 import edu.neu.hadoop.mapreduce.Reducer;
 import edu.neu.hadoop.mapreduce.network.HostNameManager;
@@ -75,7 +77,7 @@ public class ReducerThread extends Thread {
 				mapTask.join();
 
 				// Send output data to S3
-				process = runtime.exec(Constants.outputToS3(bucketPath, outputPath));
+				process = runtime.exec(Constants.outputToS3(outputPath));
 				process.waitFor();
 
 				// Acknowledge Master of task completion
@@ -86,6 +88,9 @@ public class ReducerThread extends Thread {
 				conn.close();
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				Cleaner cleaner = new Cleaner();
+				cleaner.deleteDirectory(new File(Constants.OUTPUT_FOLDER_NAME));
 			}
 		}
 	}

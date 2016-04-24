@@ -60,7 +60,12 @@ public class MapContext extends Context {
 		HostNameManager hostNameManager = new HostNameManager();
 		for (int i = 0; i < numPartitions; i++) {
 			if (!partitions.get(i).isEmpty()) {
-				writer.write(partitions.get(i), i, hostNameManager.getOwnHostName());
+				boolean clusterMode = conf.getOutputPath().getPath().contains("s3");
+				if (clusterMode) {
+					writer.write(partitions.get(i), i, hostNameManager.getOwnHostName());
+				} else {
+					writer.write(partitions.get(i), i, Thread.currentThread().getName());
+				}
 			}
 		}
 	}

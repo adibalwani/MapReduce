@@ -12,12 +12,21 @@ public class Constants {
 	public static final String PARTITION_FOLDER_NAME = "partition/";
 	public static final String MERGED_FILE_NAME = "merged";
 	public static final String INPUT_FOLDER_NAME = "input";
+	public static final String OUTPUT_FOLDER_NAME = "output";
+	public static final String REDUCER_OUTPUT_FORMAT = "part-r0000";
 	public static final String DNS_FILE_NAME = "instance-dns";
 	
 	public static final int MASTER_PORT = 9999;
 	public static final int MAPPER_PORT = 10000;
 	public static final int REDUCER_PORT = 10001;
 	
+	/**
+	 * AWS command for transferring data from S3 to partitions in {@link FileSystem}
+	 * 
+	 * @param bucketPath Bucket Name
+	 * @param instanceNumber Own instance Number
+	 * @return Command
+	 */
 	public static String s3ToPartition(String bucketPath, int instanceNumber) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("aws s3 cp ");
@@ -48,12 +57,17 @@ public class Constants {
 		return builder.toString();
 	}
 	
-	public static String outputToS3(String bucketPath, String outputFolder) {
+	/**
+	 * AWS command for transferring data from output in {@link FileSystem} to S3
+	 * 
+	 * @param outputFolder S3 output path
+	 * @return Command
+	 */
+	public static String outputToS3(String outputFolder) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("aws s3 cp ");
-		builder.append(outputFolder);
+		builder.append(OUTPUT_FOLDER_NAME);
 		builder.append(' ');
-		builder.append(bucketPath);
 		builder.append(outputFolder);
 		builder.append(" --recursive");
 		return builder.toString();
