@@ -17,7 +17,7 @@ import java.io.IOException;
  * 
  * @author Adib Alwani
  */
-public abstract class Writable implements Cloneable {
+public interface Writable {
 
 	/**
 	 * Serialize the fields of this object to <code>out</code>
@@ -25,7 +25,7 @@ public abstract class Writable implements Cloneable {
 	 * @param out <code>DataOuput</code> to serialize this object into
 	 * @throws IOException
 	 */
-	public void write(DataOutput out) throws IOException { }
+	public void write(DataOutput out) throws IOException;
 
 	/**
 	 * Deserialize the fields of this object from <code>in</code>
@@ -33,10 +33,5 @@ public abstract class Writable implements Cloneable {
 	 * @param in <code>DataInput</code> to deserialize this object from
 	 * @throws IOException
 	 */
-	public void readFields(DataInput in) throws IOException { }
-	
-	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
+	public void readFields(DataInput in) throws IOException;
 }

@@ -9,6 +9,7 @@ import java.util.List;
 
 import edu.neu.hadoop.io.Writable;
 import edu.neu.hadoop.mapreduce.Constants;
+import edu.neu.hadoop.mapreduce.Counters;
 import edu.neu.hadoop.mapreduce.KeyValue;
 
 /**
@@ -46,6 +47,7 @@ public class Writer {
 				Writable value = (Writable) pair.getValue();
 				key.write(outputStream);
 				value.write(outputStream);
+				Counters.MAP_OUTPUT_RECORDS++;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

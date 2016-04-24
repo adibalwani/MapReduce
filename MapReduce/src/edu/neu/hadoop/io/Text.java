@@ -11,11 +11,11 @@ import java.io.IOException;
  * @author Rushikesh Badami
  * @modified Adib Alwani
  */
-public class Text extends Writable implements Comparable<Text> {
+public class Text implements Writable, Cloneable, Comparable<Text> {
 
 	private String value;
 	
-	public Text() { }
+	public Text() { value = ""; }
 
 	public Text(String value) {
 		this.value = value;

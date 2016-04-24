@@ -18,6 +18,11 @@ if(num_of_files==1):
 		print node
 		call(["scp", "-i", "ec2-key.pem", "s3data",node])
 		dns.close()
+	with open('original-dns', 'r+') as fd:
+		for i, line in enumerate(fd):
+			nodes="ec2-user@" + str(line)[:-1] + ":~/"
+			call(["scp", "-i", "ec2-key.pem", "-r", "classFiles/.", nodes])
+		fd.close()
 else:
 	f = 1
 	with open('original-dns', 'r+') as fd:

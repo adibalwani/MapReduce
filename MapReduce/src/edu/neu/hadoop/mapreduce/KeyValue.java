@@ -1,6 +1,9 @@
 package edu.neu.hadoop.mapreduce;
 
-import edu.neu.hadoop.io.Writable;
+import edu.neu.hadoop.io.BooleanWritable;
+import edu.neu.hadoop.io.FloatWritable;
+import edu.neu.hadoop.io.IntWritable;
+import edu.neu.hadoop.io.Text;
 
 
 /**
@@ -15,11 +18,30 @@ public class KeyValue<KEY, VALUE> implements Comparable<KeyValue<KEY, VALUE>> {
 	private VALUE value;
 
 	public KeyValue(KEY key, VALUE value) {
-		Writable writableKey = (Writable) key;
-		Writable writableValue = (Writable) value;
 		try {
-			this.key = (KEY) writableKey.clone();
-			this.value = (VALUE) writableValue.clone();
+			if (key instanceof Text) {
+				this.key = (KEY) ((Text) key).clone();
+			} else if (key instanceof IntWritable) {
+				this.key = (KEY) ((IntWritable) key).clone();
+			} else if (key instanceof FloatWritable) {
+				this.key = (KEY) ((FloatWritable) key).clone();
+			} else if (key instanceof BooleanWritable) {
+				this.key = (KEY) ((BooleanWritable) key).clone();
+			} else {
+				this.key = key;
+			}
+			
+			if (value instanceof Text) {
+				this.value = (VALUE) ((Text) value).clone();
+			} else if (value instanceof IntWritable) {
+				this.value = (VALUE) ((IntWritable) value).clone();
+			} else if (value instanceof FloatWritable) {
+				this.value = (VALUE) ((FloatWritable) value).clone();
+			} else if (value instanceof BooleanWritable) {
+				this.value = (VALUE) ((BooleanWritable) value).clone();
+			} else {
+				this.value = value;
+			}
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}

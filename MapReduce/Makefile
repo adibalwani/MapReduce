@@ -22,22 +22,33 @@ compile_map_reduce:
 	rm -rf javas.txt
 
 compile_word_count:
+	rm -rf tmp
 	mkdir tmp
 	javac -cp .:hadoop.jar -d tmp test/WordCount/WordCount.java
 	jar cvf WordCount.jar -C tmp .
 	rm -rf tmp
 
+compile_word_median:
+	rm -rf tmp
+	mkdir tmp
+	javac -cp .:hadoop.jar -d tmp test/WordMedian/WordMedian.java
+	jar cvf WordMedian.jar -C tmp .
+	rm -rf tmp
+
 compile_assignment_2:
+	rm -rf tmp
 	mkdir tmp
 	javac -cp .:hadoop.jar -d tmp test/Ass2/ClusterAnalysis.java
 	jar cvf ClusterAnalysis.jar -C tmp .
 	rm -rf tmp
 
-compile_assignment_7:
-	mkdir classFiles
-	donwload_lib
+compile_assignment_7: download_lib
+	rm -rf tmp
+	mkdir tmp
 	cp hadoop.jar lib
-	javac -cp "lib/*" -d classFiles test/Ass2/ClusterAnalysis.java
+	javac -cp "lib/*" -d tmp test/Ass7/Prediction/*.java
+	javac -cp "lib/*" -d . test/Ass7/Prediction/*.java
+	#jar cvf Prediction.jar -C tmp .
 	
 form_jar:
 	jar cvf hadoop.jar -C bin .

@@ -1,5 +1,3 @@
-package org.apache.hadoop.examples;
-
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -23,22 +21,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.TaskCounter;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
+import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.conf.Configured;
+import edu.neu.hadoop.fs.FileSystem;
+import edu.neu.hadoop.fs.Path;
+import edu.neu.hadoop.io.IntWritable;
+import edu.neu.hadoop.io.Text;
+import edu.neu.hadoop.mapreduce.Job;
+import edu.neu.hadoop.mapreduce.Mapper;
+import edu.neu.hadoop.mapreduce.Reducer;
+import edu.neu.hadoop.mapreduce.TaskCounter;
+import edu.neu.hadoop.mapreduce.lib.input.FileInputFormat;
+import edu.neu.hadoop.mapreduce.lib.output.FileOutputFormat;
+import edu.neu.hadoop.util.Tool;
+import edu.neu.hadoop.util.ToolRunner;
+import edu.neu.hadoop.mapreduce.Context;
 
-import com.google.common.base.Charsets;
+//import com.google.common.base.Charsets;
 
 public class WordMedian extends Configured implements Tool {
 
@@ -129,7 +128,7 @@ public class WordMedian extends Configured implements Tool {
     BufferedReader br = null;
 
     try {
-      br = new BufferedReader(new InputStreamReader(fs.open(file), Charsets.UTF_8));
+      br = new BufferedReader(new InputStreamReader(fs.open(file)));
       int num = 0;
 
       String line;

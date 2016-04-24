@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author Rushikesh Badami
  * @modified Adib Alwani
  */
-public class BytesWritable extends Writable implements Comparable<BytesWritable> {
+public class BytesWritable implements Writable, Cloneable, Comparable<BytesWritable> {
 
 	private byte value;
 	

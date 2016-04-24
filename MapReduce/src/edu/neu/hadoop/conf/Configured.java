@@ -13,4 +13,13 @@ public class Configured implements Configurable {
 	public Configuration getConf() {
 		return new Configuration();
 	}
+
+	/**
+	 * Set the {@link Configuration} object
+	 * 
+	 * @param conf {@link Configuration} object
+	 */
+	public void setConf(Configuration conf) {
+		// Do Nothing
+	}
 }

@@ -1,7 +1,9 @@
 package edu.neu.hadoop.fs;
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.FileSystem;
+
+import edu.neu.hadoop.conf.Configuration;
 
 /**
  * Names a file or directory in a {@link FileSystem}.
@@ -15,6 +17,10 @@ public class Path implements Serializable {
 	
 	public Path(String path) {
 		this.path = path;
+	}
+	
+	public Path(String path, String fileName) {
+		this.path = path + "/" + fileName;
 	}
 	
 	/**
@@ -32,6 +38,13 @@ public class Path implements Serializable {
         builder.append(second[0]);
         builder.append('/');
         return builder.toString();
+	}
+	
+	/**
+	 * Return the {@link FileSystem} that owns this Path
+	 */
+	public FileSystem getFileSystem(Configuration conf) throws IOException {
+		return FileSystem.get(null, conf);
 	}
 
 	public String getPath() {

@@ -20,7 +20,7 @@ import edu.neu.hadoop.mapreduce.network.ObjectSocket;
  */
 public class MasterThread extends Thread {
 	
-	private final ObjectSocket.Server svr;
+	private ObjectSocket.Server svr;
 	
 	public MasterThread(int port) throws IOException {
 		svr = new ObjectSocket.Server(port);
@@ -33,8 +33,9 @@ public class MasterThread extends Thread {
 			while (null != (conn = svr.accept())) {
 				String args = (String) conn.read();
 				Hadoop.main(args.split("\\s+"));
-				conn.close();
+				System.out.println("Connection Terminated");
 			}
+			System.out.println("Master Terminated");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

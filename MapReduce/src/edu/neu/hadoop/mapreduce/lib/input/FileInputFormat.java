@@ -22,7 +22,7 @@ public class FileInputFormat {
 	 *            map-reduce job.
 	 */
 	public static void addInputPath(Job job, Path path) throws IOException {
-		Configuration conf = job.getConfiguration();
+		Configuration conf = job.getConf();
 		conf.setInputPath(new Path[]{ path });
 	}
 }

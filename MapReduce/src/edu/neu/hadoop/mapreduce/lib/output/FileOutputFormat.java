@@ -20,7 +20,7 @@ public class FileOutputFormat {
 	 * @param outputDir the {@link Path} of the output directory for the map-reduce job.
 	 */
 	public static void setOutputPath(Job job, Path outputDir) {
-		Configuration conf = job.getConfiguration();
+		Configuration conf = job.getConf();
 		conf.setOutputPath(outputDir);
 	}
 }

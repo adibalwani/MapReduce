@@ -18,6 +18,10 @@ public class Job {
 	
 	private Job() { }
 	
+	public Job(Configuration conf, String jobName) {
+		this.conf = conf;
+	}
+	
 	/**
 	 * Creates a new {@link Job} and a given {@link Configuration}.
 	 * 
@@ -157,7 +161,23 @@ public class Job {
 	 * 
 	 * @return Job Config
 	 */
-	public Configuration getConfiguration() {
+	public Configuration getConf() {
 		return conf;
+	}
+	
+	/**
+	 * Set the configuration for this job
+	 * 
+	 * @param conf {@link Configuration} object
+	 */
+	public void setConf(Configuration conf) {
+		this.conf = conf;
+	}
+	
+	/**
+	 * Return a {@link Counters} object
+	 */
+	public Counters getCounters() {
+		return new Counters();
 	}
 }

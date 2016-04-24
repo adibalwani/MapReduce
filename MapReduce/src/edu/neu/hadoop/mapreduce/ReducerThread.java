@@ -1,6 +1,9 @@
 package edu.neu.hadoop.mapreduce;
 
+import java.io.File;
+
 import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.fs.Cleaner;
 import edu.neu.hadoop.mapreduce.network.HostNameManager;
 
 /**
@@ -35,6 +38,9 @@ public class ReducerThread extends Thread {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			Cleaner cleaner = new Cleaner();
+			cleaner.deleteDirectory(new File(Constants.PARTITION_FOLDER_NAME));
 		}
 		System.out.println("Reducer Ended");
 	}

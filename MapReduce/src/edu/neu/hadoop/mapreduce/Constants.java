@@ -13,7 +13,7 @@ public class Constants {
 	public static final String MERGED_FILE_NAME = "merged";
 	public static final String INPUT_FOLDER_NAME = "input";
 	public static final String OUTPUT_FOLDER_NAME = "output";
-	public static final String REDUCER_OUTPUT_FORMAT = "part-r0000";
+	public static final String REDUCER_OUTPUT_FORMAT = "part-r-0000";
 	public static final String DNS_FILE_NAME = "instance-dns";
 	
 	public static final int MASTER_PORT = 9999;

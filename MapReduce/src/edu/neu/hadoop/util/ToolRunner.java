@@ -1,5 +1,7 @@
 package edu.neu.hadoop.util;
 
+import edu.neu.hadoop.conf.Configuration;
+
 
 /**
  * A utility to help run {@link Tool}s.
@@ -23,6 +25,20 @@ public class ToolRunner {
 	 * @return exit code of the {@link Tool#run(String[])} method.
 	 */
 	public static int run(Tool tool, String[] args) throws Exception {
+		return tool.run(args);
+	}
+	
+	/**
+	 * Runs the <code>Tool</code> with its <code>Configuration</code>.
+	 * Equivalent to <code>run(tool.getConf(), tool, args)</code>.
+	 * 
+	 * @param conf {@link Configuration} object
+	 * @param tool <code>Tool</code> to run.
+	 * @param args command-line arguments to the tool.
+	 * @return exit code of the {@link Tool#run(String[])} method.
+	 * @throws Exception
+	 */
+	public static int run(Configuration conf, Tool tool, String[] args) throws Exception {
 		return tool.run(args);
 	}
 }

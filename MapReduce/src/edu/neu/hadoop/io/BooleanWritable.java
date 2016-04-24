@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author Rushikesh Badami
  * @modified Adib Alwani
  */
-public class BooleanWritable extends Writable implements Comparable<BooleanWritable> {
+public class BooleanWritable implements Writable, Cloneable, Comparable<BooleanWritable> {
 
 	private boolean value;
 	

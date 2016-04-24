@@ -13,7 +13,6 @@ try :
 	with open(filename, 'r') as fd:
 		for line in fd:
 			call(["aws", "s3", "cp", str(line).replace("\n",""), "./input"])
+	fd.close()
 except:
 	print "No Input data"
-
-fd.close()

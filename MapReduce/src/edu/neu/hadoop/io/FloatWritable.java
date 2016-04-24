@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author Rushikesh Badami
  * @modified Adib Alwani
  */
-public class FloatWritable extends Writable implements Comparable<FloatWritable> {
+public class FloatWritable implements Writable, Cloneable, Comparable<FloatWritable> {
 
 	private float value;
 

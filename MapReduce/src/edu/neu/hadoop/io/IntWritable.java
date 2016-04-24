@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author Rushikesh Badami
  * @modified Adib Alwani
  */
-public class IntWritable extends Writable implements Comparable<IntWritable> {
+public class IntWritable implements Writable, Cloneable, Comparable<IntWritable> {
 
 	private int value;
 	
