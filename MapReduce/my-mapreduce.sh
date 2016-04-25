@@ -2,7 +2,7 @@
 # Author: Adib Alwani, Rushikesh Badami
 
 # Args check
-if [[ $# -ne 3 ]]; then
+if [[ $# -lt 3 ]]; then
 	echo usage: $0 "[Program] [input path] [output path]"
 	exit 1
 fi
@@ -13,7 +13,7 @@ if [[ $3 != *"s3"* ]]
 then
 	rm -rf *.class META*
 	unzip $1
-	java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Hadoop $1 $2 $3
+	java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Hadoop "$@"
 	exit $?
 fi
 
@@ -28,4 +28,4 @@ python copyClassFiles.py
 sh copy.sh
 
 # Wait for program to end (if needed)
-java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Client $1 $2 $3
+java -cp .:hadoop.jar edu.neu.hadoop.mapreduce.main.Client "$@"

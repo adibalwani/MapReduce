@@ -21,6 +21,7 @@ public class ReducerThread extends Thread {
 	
 	private final ObjectSocket.Server svr;
 	private final HostNameManager hostNameManager;
+	public static Configuration configuration;
 	
 	public ReducerThread(int port, HostNameManager hostNameManager) throws IOException {
 		svr = new ObjectSocket.Server(port);
@@ -49,19 +50,18 @@ public class ReducerThread extends Thread {
 	 */
 	private static class ReduceTask extends Thread {
 
-		private final Configuration conf;
 		private final HostNameManager hostNameManager;
 
 		public ReduceTask(Configuration conf, HostNameManager hostNameManager) {
-			this.conf = conf;
+			configuration = conf;
 			this.hostNameManager = hostNameManager;
 		}
 
 		@Override
 		public void run() {
 			try {
-				String outputPath = conf.getOutputPath().getPath();
-				String bucketPath = conf.getOutputPath().getBucketPath();
+				String outputPath = configuration.getOutputPath().getPath();
+				String bucketPath = configuration.getOutputPath().getBucketPath();
 				int instanceNumber = hostNameManager.getOwnInstanceNumber(); 
 				
 				// Fetch partition data from S3
@@ -72,7 +72,7 @@ public class ReducerThread extends Thread {
 				
 				// Start Reducer
 				edu.neu.hadoop.mapreduce.ReducerThread mapTask = 
-						new edu.neu.hadoop.mapreduce.ReducerThread(conf);
+						new edu.neu.hadoop.mapreduce.ReducerThread(configuration);
 				mapTask.start();
 				mapTask.join();
 
@@ -85,6 +85,7 @@ public class ReducerThread extends Thread {
 					hostNameManager.getMasterHostName(),
 					Constants.REDUCER_PORT
 				);
+				conn.write(Long.valueOf(0));
 				conn.close();
 			} catch (Exception e) {
 				e.printStackTrace();

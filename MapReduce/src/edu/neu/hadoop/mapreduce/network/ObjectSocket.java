@@ -80,5 +80,14 @@ public class ObjectSocket {
 				return new ObjectSocket(sock);
 			}
 		}
+
+		/**
+		 * Close the connection
+		 * 
+		 * @throws IOException
+		 */
+		public void close() throws IOException {
+			server.close();
+		}
 	}
 }

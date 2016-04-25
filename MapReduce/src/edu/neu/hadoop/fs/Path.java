@@ -14,13 +14,15 @@ import edu.neu.hadoop.conf.Configuration;
 public class Path implements Serializable {
 	
 	private String path;
+	private String fileName;
 	
 	public Path(String path) {
 		this.path = path;
 	}
 	
 	public Path(String path, String fileName) {
-		this.path = path + "/" + fileName;
+		this.path = path;
+		this.fileName = fileName;
 	}
 	
 	/**
@@ -44,10 +46,14 @@ public class Path implements Serializable {
 	 * Return the {@link FileSystem} that owns this Path
 	 */
 	public FileSystem getFileSystem(Configuration conf) throws IOException {
-		return FileSystem.get(null, conf);
+		return FileSystem.get(conf);
 	}
 
 	public String getPath() {
 		return path;
+	}
+
+	public String getFileName() {
+		return fileName;
 	}
 }

@@ -2,6 +2,7 @@ package edu.neu.hadoop.mapreduce.master;
 
 import java.io.IOException;
 
+import edu.neu.hadoop.mapreduce.Counters;
 import edu.neu.hadoop.mapreduce.network.ObjectSocket;
 
 /**
@@ -25,13 +26,21 @@ public class Barrier extends Thread {
 			ObjectSocket conn;
 			while (null != (conn = svr.accept())) {
 				barrierCount--;
+				Counters.MAP_OUTPUT_RECORDS += (Long) conn.read();
 				conn.close();
 				if (barrierCount <= 0) {
+					System.out.println("MAP_OUTPUT_RECORDS " + Counters.MAP_OUTPUT_RECORDS);
 					break;
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				svr.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

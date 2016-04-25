@@ -50,6 +50,15 @@ compile_assignment_7: download_lib
 	javac -cp "lib/*" -d . test/Ass7/Prediction/*.java
 	#jar cvf Prediction.jar -C tmp .
 	
+form_fat_jar: download_lib
+	rm -rf tmp
+	mkdir tmp
+	unzip lib/weka-3.7.3.jar -d tmp
+	rm -rf tmp/META-INF
+	cp hadoop.jar lib
+	javac -cp "lib/*" -d tmp test/Ass7/Prediction/*.java
+	jar cvf Prediction.jar -C tmp .
+
 form_jar:
 	jar cvf hadoop.jar -C bin .
 

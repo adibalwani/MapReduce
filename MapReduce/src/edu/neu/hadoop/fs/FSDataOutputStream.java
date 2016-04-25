@@ -1,40 +1,42 @@
 package edu.neu.hadoop.fs;
 
-import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-import edu.neu.hadoop.mapreduce.network.HostNameManager;
+import edu.neu.hadoop.mapreduce.Constants;
+import edu.neu.hadoop.mapreduce.worker.ReducerThread;
 
 /**
- * Utility that wraps a {@link OutputStream} in a {@link DataOutputStream}
+ * Utility that wraps a {@link OutputStream} in a {@link FileOutputStream}
  * 
  * @author Adib Alwani
  */
-public class FSDataOutputStream extends ObjectOutputStream {
+public class FSDataOutputStream extends FileOutputStream {
 	
-	private final Path path;
-	private final ObjectOutputStream objectOutputStream;
+	private String path;
 	
-	public FSDataOutputStream(Path path) throws IOException {
+	public FSDataOutputStream(String path) throws FileNotFoundException {
+		super(path);
 		this.path = path;
-		this.objectOutputStream = new ObjectOutputStream(
-				new FileOutputStream(path.getPath()));
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		super.close();
-		HostNameManager hostNameManager = new HostNameManager();
-		// Check if in S3 or not
-		if (!hostNameManager.getWorkerNodes().isEmpty()) {
-			
+		boolean clusterMode = ReducerThread.configuration != null;
+		if (clusterMode) {
+			try {
+				Runtime runtime = Runtime.getRuntime();
+				String bucketName = 
+						ReducerThread.configuration.getOutputPath().getBucketPath();
+				Process process = runtime.exec(Constants.LocalToS3(path, 
+						bucketName + Constants.MODEL_FOLDER_NAME));
+				process.waitFor();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-	}
-
-	public ObjectOutputStream getObjectOutputStream() {
-		return objectOutputStream;
 	}
 }

@@ -1,14 +1,13 @@
 package edu.neu.hadoop.fs;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.URI;
 
 import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.mapreduce.Constants;
+import edu.neu.hadoop.mapreduce.network.HostNameManager;
+import edu.neu.hadoop.mapreduce.worker.ReducerThread;
 
 /**
  * An abstract base class for a fairly generic filesystem.  It
@@ -31,6 +30,7 @@ public class FileSystem {
 	 */
 	public static FileSystem get(URI uri, Configuration conf) throws IOException {
 		File folder = new File(uri.getPath());
+		System.out.println(uri.getPath());
 		if (!folder.exists()) {
 			folder.mkdirs();
 		}
@@ -55,8 +55,7 @@ public class FileSystem {
 	 * @throws IOException
 	 */
 	public FSDataOutputStream create(Path file) throws IOException {
-		return (FSDataOutputStream) 
-				new ObjectOutputStream(new FileOutputStream(file.getPath()));
+		return new FSDataOutputStream(file.getPath());
 	}
 	
 	/**
@@ -67,13 +66,46 @@ public class FileSystem {
 	 * @throws IOException
 	 */
 	public FSDataInputStream open(Path file) throws IOException {
-		return new FSDataInputStream(file.getPath());
+		HostNameManager hostNameManager = new HostNameManager();
+		boolean clusterMode = hostNameManager.getWorkerNodes().size() != 0;
+		if (clusterMode) {
+			try {
+				Runtime runtime = Runtime.getRuntime();
+				if (file.getFileName() != null) {
+					Process process = runtime.exec(Constants.s3ToLocal(
+							file.getPath(), Constants.OUTPUT_FOLDER_NAME));
+					process.waitFor();
+					return new FSDataInputStream(Constants.OUTPUT_FOLDER_NAME
+							+ "/" + file.getFileName());
+				} else {
+					String bucketName = 
+							ReducerThread.configuration.getOutputPath().getBucketPath();
+					Process process = runtime.exec(Constants.s3ToLocal(
+							bucketName + file.getPath(), "."));
+					process.waitFor();
+					return new FSDataInputStream(file.getPath());
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+		if (file.getFileName() == null) {
+			return new FSDataInputStream(file.getPath());
+		} else {
+			return new FSDataInputStream(file.getPath() + "/" + file.getFileName());
+		}
 	}
 	
 	/**
 	 * Check whether file exists or not for the provided {@link Path}
 	 */
 	public boolean exists(Path path) {
+		boolean clusterMode = path.getPath().contains("s3");
+		if (clusterMode) {
+			return true;
+		}
 		File file = new File(path.getPath());
 		return file.exists();
 	}

@@ -3,6 +3,8 @@ package edu.neu.hadoop.mapreduce.master;
 import java.io.IOException;
 
 import edu.neu.hadoop.conf.Configuration;
+import edu.neu.hadoop.mapreduce.Constants;
+import edu.neu.hadoop.mapreduce.Counters;
 import edu.neu.hadoop.mapreduce.Mapper;
 import edu.neu.hadoop.mapreduce.Reducer;
 import edu.neu.hadoop.mapreduce.main.Hadoop;
@@ -31,6 +33,7 @@ public class MasterThread extends Thread {
 		try {
 			ObjectSocket conn;
 			while (null != (conn = svr.accept())) {
+				Counters.MAP_OUTPUT_RECORDS = 0;
 				String args = (String) conn.read();
 				Hadoop.main(args.split("\\s+"));
 				System.out.println("Connection Terminated");

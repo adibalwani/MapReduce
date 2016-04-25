@@ -21,6 +21,7 @@ public class MapContext extends Context {
 	
 	private Configuration conf;
 	private List<List<KeyValue>> partitions;
+	private List<Integer> partitionsIds;
 	Partitioner partitioner;
 	private int numPartitions;
 	
@@ -29,18 +30,33 @@ public class MapContext extends Context {
 		inputPaths = conf.getInputPath();
 		numPartitions = conf.getNumReduceTasks();
 		partitions = new ArrayList<List<KeyValue>>();
+		partitionsIds = new ArrayList<Integer>();
 		partitioner = new HashPartitioner<>();
 		for (int i = 0; i < numPartitions; i++) {
 			partitions.add(new ArrayList<KeyValue>());
+			partitionsIds.add(0);
 		}
 	}
 
 	@Override
 	public <KEYOUT, VALUEOUT> void write(KEYOUT key, VALUEOUT value) {
-		List<KeyValue> list = partitions.get(
-			partitioner.getPartition(key, value, numPartitions)
-		);
+		int numPartition = partitioner.getPartition(key, value, numPartitions);
+		List<KeyValue> list = partitions.get(numPartition);
 		list.add(new KeyValue(key, value));
+		if (list.size() > Constants.MAPPER_BUFFER_CAPACITY) {
+			sortPartitions(list);
+			spillToDisk(list, numPartition);
+			list.clear();
+		}
+	}
+	
+	/**
+	 * Sort the provided partition
+	 * 
+	 * @param partition Partition
+	 */
+	private void sortPartitions(List<KeyValue> partition) {
+		Collections.sort(partition);
 	}
 	
 	/**
@@ -49,6 +65,27 @@ public class MapContext extends Context {
 	public void sortPartitions() {
 		for (List<KeyValue> partition : partitions) {
 			Collections.sort(partition);
+		}
+	}
+	
+	/**
+	 * Spill the provided partition to disk
+	 * 
+	 * @param partition Partition
+	 * @param numPartition Partition number
+	 */
+	private void spillToDisk(List<KeyValue> partition, int numPartition) {
+		System.out.println("Buffer full. Spilled to disk");
+		Writer writer = new Writer();
+		boolean clusterMode = conf.getOutputPath().getPath().contains("s3");
+		if (clusterMode) {
+			HostNameManager hostNameManager = new HostNameManager();
+			writer.write(partition, numPartition, hostNameManager.getOwnHostName());
+		} else {
+			int index = partitionsIds.get(numPartition);
+			String fileName = Thread.currentThread().getName() + index;
+			writer.write(partition, numPartition, fileName);
+			partitionsIds.set(numPartition, index + 1);
 		}
 	}
 	
