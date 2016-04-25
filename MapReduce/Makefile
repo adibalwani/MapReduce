@@ -62,6 +62,8 @@ form_fat_jar: download_lib
 form_jar:
 	jar cvf hadoop.jar -C bin .
 
+un_jar:
+	jar xf *.jar
 ########################## Run ##################################
 
 run_word_count: clean compile compile_word_count
