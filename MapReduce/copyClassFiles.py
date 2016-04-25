@@ -6,6 +6,8 @@ from subprocess import call
 import commands
 from itertools import islice
 
+jarFile = sys.argv[1]  # Program jar
+
 '''
 Below block of code is used to transfer class files of our implemented hadoop to each worker node and master 
 '''
@@ -27,7 +29,7 @@ if(num_of_files==1):
 	with open('original-dns', 'r+') as fd:
 		for i, line in enumerate(fd):
 			nodes="ec2-user@" + str(line)[:-1] + ":~/"
-			call(["scp", "-i", "ec2-key.pem", "-r", "classFiles/.", nodes])		# Transfer classFiles of our hadoop implementation to worker node and master
+			call(["scp", "-i", "ec2-key.pem", "jarFile", nodes])		# Transfer classFiles of our hadoop implementation to worker node and master
 		fd.close()
 '''
 Below block of code is used to transfer a list of files to be downloaded by each worker node from s3 to process data .This block also transfer class files of our implementation
@@ -41,7 +43,7 @@ else:
 			if i != 0:
 				call(["scp", "-i", "ec2-key.pem", "s3data"+str(f),nodes])	# Transfer list of files to be download from s3 to worker nodes
 				f = f + 1
-			call(["scp", "-i", "ec2-key.pem", "-r", "classFiles/.", nodes])		# Transfer classFiles of our hadoop implementation to worker nodes and master
+			call(["scp", "-i", "ec2-key.pem", "jarFile", nodes])		# Transfer classFiles of our hadoop implementation to worker nodes and master
 	fd.close()
 			
 			
